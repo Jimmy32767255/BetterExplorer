@@ -59,6 +59,8 @@ class FileManager(QMainWindow):
         # 创建文件系统模型
         self.model = QFileSystemModel()
         self.model.setRootPath(QDir.rootPath())
+        self.model.setOption(QFileSystemModel.DontUseCustomDirectoryIcons)
+        self.model.setOption(QFileSystemModel.DontWatchForChanges)
         
         # 创建列表视图
         self.list_view = QListView()
