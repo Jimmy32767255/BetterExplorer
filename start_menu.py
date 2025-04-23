@@ -1,0 +1,377 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+BetterExplorer - 开始菜单模块
+负责实现开始菜单功能，包括程序列表、搜索框和电源选项
+"""
+
+import os
+import sys
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
+                             QLineEdit, QScrollArea, QFrame, QGridLayout, 
+                             QToolButton, QSizePolicy, QMenu, QAction)
+from PyQt5.QtCore import Qt, QSize, QRect, QPoint
+from PyQt5.QtGui import QIcon, QFont, QPixmap, QPainter
+from PyQt5.QtSvg import QSvgRenderer
+from io import BytesIO
+from icons import file_manager_icon, settings_icon, power_icon
+
+
+class StartMenu(QWidget):
+    """开始菜单类，提供开始菜单功能"""
+    
+    def __init__(self, display_manager, parent=None):
+        super().__init__(parent)
+        self.display_manager = display_manager
+        self.is_visible = False
+        
+        # 初始化日志记录器
+        from log import Logger
+        self.logger = Logger()
+        self.logger.info("开始菜单初始化")
+        
+        # 设置窗口属性
+        self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        
+        # 初始化当前路径
+        self.current_path = os.path.join(os.environ.get('ProgramData', 'C:\ProgramData'),
+                                      'Microsoft\Windows\Start Menu\Programs')
+        
+        # 初始化UI
+        self.init_ui()
+        
+    def init_ui(self):
+        """初始化用户界面"""
+        # 设置菜单大小
+        self.setFixedSize(400, 500)
+        
+        # 设置菜单样式
+        self.setStyleSheet(
+            "background-color: #2D2D30; color: white; border: 1px solid #3F3F46;"
+        )
+        
+        # 创建主布局
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(10)
+        
+        # 添加搜索框
+        search_layout = QHBoxLayout()
+        search_edit = QLineEdit()
+        search_edit.setPlaceholderText("搜索应用、设置和文档")
+        search_edit.setStyleSheet(
+            "QLineEdit {background-color: #3E3E42; border: 1px solid #555555; border-radius: 3px; padding: 8px;}"
+            "QLineEdit:focus {border: 1px solid #0078D7;}"
+        )
+        search_layout.addWidget(search_edit)
+        main_layout.addLayout(search_layout)
+        
+        # 添加分隔线
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        separator.setStyleSheet("background-color: #3F3F46;")
+        main_layout.addWidget(separator)
+        
+        # 添加程序列表区域
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setStyleSheet(
+            "QScrollArea {border: none; background-color: transparent;}"
+            "QScrollBar:vertical {background-color: #2D2D30; width: 10px;}"
+            "QScrollBar::handle:vertical {background-color: #3E3E42; border-radius: 5px;}"
+            "QScrollBar::handle:vertical:hover {background-color: #505054;}"
+        )
+        
+        # 创建程序列表容器
+        program_widget = QWidget()
+        program_layout = QGridLayout(program_widget)
+        program_layout.setContentsMargins(0, 0, 0, 0)
+        program_layout.setSpacing(10)
+        
+        # 从当前目录读取程序列表
+        row = 0
+        col = 0
+        max_cols = 3  # 每行最多显示3个程序
+        
+        for item in os.listdir(self.current_path):
+            item_path = os.path.join(self.current_path, item)
+            name = os.path.splitext(item)[0]
+            
+            # 判断是文件夹还是程序
+            icon_type = "folder" if os.path.isdir(item_path) else "program"
+            
+            # 添加按钮
+            self.add_program_button(program_layout, row, col, name, icon_type, item_path)
+            
+            # 更新行列位置
+            col += 1
+            if col >= max_cols:
+                col = 0
+                row += 1
+        
+        scroll_area.setWidget(program_widget)
+        main_layout.addWidget(scroll_area, 1)  # 占据大部分空间
+        
+        # 添加底部区域
+        bottom_layout = QHBoxLayout()
+        
+        # 添加用户信息区域
+        user_layout = QHBoxLayout()
+        user_avatar = QLabel()
+        user_avatar.setFixedSize(32, 32)
+        user_avatar.setStyleSheet(
+            "background-color: #3E3E42; border-radius: 16px;"
+        )
+        user_name = QLabel(os.environ.get('USERNAME'))
+        user_name.setStyleSheet("font-size: 14px; padding-left: 10px;")
+        user_layout.addWidget(user_avatar)
+        user_layout.addWidget(user_name)
+        user_layout.addStretch()
+        
+        # 添加底部按钮
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(5)
+        
+        # 文件管理器按钮
+        file_manager_button = QPushButton()
+        file_manager_button.setFixedSize(32, 32)
+        file_manager_button.setStyleSheet(
+            "QPushButton {background-color: transparent; border: none; color: white;}"
+            "QPushButton:hover {background-color: #3E3E42; border-radius: 3px;}"
+            "QPushButton:pressed {background-color: #0078D7;}"
+        )
+        self.set_svg_icon(file_manager_button, file_manager_icon)
+        file_manager_button.clicked.connect(lambda: self.on_program_clicked("文件管理器", os.path.join(os.path.dirname(os.path.abspath(__file__)), "file_manager.py")))
+        
+        # 设置按钮
+        settings_button = QPushButton()
+        settings_button.setFixedSize(32, 32)
+        settings_button.setStyleSheet(
+            "QPushButton {background-color: transparent; border: none; color: white;}"
+            "QPushButton:hover {background-color: #3E3E42; border-radius: 3px;}"
+            "QPushButton:pressed {background-color: #0078D7;}"
+        )
+        self.set_svg_icon(settings_button, settings_icon)
+        settings_button.clicked.connect(lambda: self.on_program_clicked("设置", os.path.join(os.path.dirname(os.path.abspath(__file__)), "settings.py")))
+        
+        # 电源按钮
+        power_button = QPushButton()
+        power_button.setFixedSize(32, 32)
+        power_button.setStyleSheet(
+            "QPushButton {background-color: transparent; border: none; color: white;}"
+            "QPushButton:hover {background-color: #3E3E42; border-radius: 3px;}"
+            "QPushButton:pressed {background-color: #0078D7;}"
+        )
+        self.set_svg_icon(power_button, power_icon)
+        power_button.clicked.connect(self.show_power_menu)
+        
+        button_layout.addWidget(file_manager_button)
+        button_layout.addWidget(settings_button)
+        button_layout.addWidget(power_button)
+        
+        bottom_layout.addLayout(user_layout)
+        bottom_layout.addLayout(button_layout)
+        
+        main_layout.addLayout(bottom_layout)
+    
+    def add_program_button(self, layout, row, col, name, icon_type, item_path):
+        """添加程序按钮到网格布局"""
+        button = QToolButton()
+        button.setText(name)
+        button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        button.setFixedSize(100, 80)
+        
+        # 设置图标
+        button.setIcon(QIcon())
+        button.setIconSize(QSize(32, 32))
+        
+        # 设置样式
+        button.setStyleSheet(
+            "QToolButton {background-color: transparent; color: white; border: none; text-align: center;}"
+            "QToolButton:hover {background-color: #3E3E42; border-radius: 5px;}"
+            "QToolButton:pressed {background-color: #0078D7;}"
+        )
+        
+        # 连接点击事件
+        button.clicked.connect(lambda checked, name=name, path=item_path: self.on_program_clicked(name, path))
+        
+        layout.addWidget(button, row, col)
+        return button
+    
+    def on_program_clicked(self, program_name, item_path):
+        """处理程序点击事件"""
+        # 判断是否是文件夹
+        if os.path.isdir(item_path):
+            # 更新当前路径并刷新界面
+            self.current_path = item_path
+            self.logger.debug(f"进入文件夹: {item_path}")
+            self.refresh_program_list()
+            return
+        
+        self.logger.info(f"启动程序: {program_name}")
+        
+        # 根据程序名称执行不同操作
+        if program_name == "文件管理器":
+            # 导入并创建文件管理器实例
+            from file_manager import FileManager
+            file_manager = FileManager()
+            file_manager.show()
+            
+            # 保存文件管理器实例，防止被垃圾回收
+            self.file_manager_instance = file_manager
+        elif program_name == "设置":
+            # 导入并创建设置实例
+            from settings import Settings
+            settings_window = Settings()
+            settings_window.show()
+            
+            # 保存设置实例，防止被垃圾回收
+            self.settings_instance = settings_window
+        # 其他程序可以在这里添加相应的处理代码
+        
+        # 点击后隐藏开始菜单
+        self.hide()
+    
+    def show_power_menu(self):
+        """显示电源菜单"""
+        power_menu = QMenu(self)
+        power_menu.setStyleSheet(
+            "QMenu {background-color: #2D2D30; color: white; border: 1px solid #3F3F46;}"
+            "QMenu::item {padding: 5px 20px;}"
+            "QMenu::item:selected {background-color: #3E3E42;}"
+        )
+        
+        # 添加电源选项
+        sleep_action = QAction("睡眠", self)
+        hibernate_action = QAction("休眠", self)
+        shutdown_action = QAction("关机", self)
+        restart_action = QAction("重启", self)
+        
+        # 连接动作信号
+        sleep_action.triggered.connect(self.system_sleep)
+        hibernate_action.triggered.connect(self.system_hibernate)
+        shutdown_action.triggered.connect(self.system_shutdown)
+        restart_action.triggered.connect(self.system_restart)
+        
+        # 添加动作到菜单
+        power_menu.addAction(sleep_action)
+        power_menu.addAction(hibernate_action)
+        power_menu.addAction(shutdown_action)
+        power_menu.addAction(restart_action)
+        
+        # 显示菜单
+        power_menu.exec_(self.mapToGlobal(QPoint(self.width() - 100, self.height() - 40)))
+    
+    def system_sleep(self):
+        """系统睡眠"""
+        print("系统睡眠")
+        os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+        
+    def system_hibernate(self):
+        """系统休眠"""
+        print("系统休眠")
+        os.system("rundll32.exe powrprof.dll,SetSuspendState 1,1,0")
+    
+    def system_shutdown(self):
+        """系统关机"""
+        print("系统关机")
+        os.system("shutdown /s /t 0")
+    
+    def system_restart(self):
+        """系统重启"""
+        print("系统重启")
+        os.system("shutdown /r /t 0")
+    
+    def toggle_visibility(self, button_pos):
+        """切换开始菜单的可见性"""
+        if self.is_visible:
+            self.hide()
+            self.is_visible = False
+            self.logger.debug("隐藏开始菜单")
+        else:
+            # 重置当前路径为默认路径
+            self.current_path = os.path.join(os.environ.get('ProgramData', 'C:\ProgramData'),
+                                          'Microsoft\Windows\Start Menu\Programs')
+            self.refresh_program_list()
+            
+            # 获取主屏幕
+            primary_screen = self.display_manager.get_primary_screen()
+            
+            # 计算菜单位置（在开始按钮正上方）
+            x = button_pos.x()
+            y = primary_screen['y'] + primary_screen['height'] - self.height() - 40  # 40是任务栏高度
+            
+            self.move(x, y)
+            self.show()
+            self.is_visible = True
+            self.logger.debug("显示开始菜单")
+    
+    def hideEvent(self, event):
+        """处理隐藏事件"""
+        self.is_visible = False
+        super().hideEvent(event)
+    
+    def refresh_program_list(self):
+        """刷新程序列表"""
+        # 清除旧的程序列表
+        for i in reversed(range(self.layout().count())):
+            widget = self.layout().itemAt(i).widget()
+            if isinstance(widget, QScrollArea):
+                # 找到程序列表区域，重新创建内容
+                scroll_area = widget
+                program_widget = QWidget()
+                program_layout = QGridLayout(program_widget)
+                program_layout.setContentsMargins(0, 0, 0, 0)
+                program_layout.setSpacing(10)
+                
+                # 遍历当前目录
+                row = 0
+                col = 0
+                max_cols = 3
+                
+                for item in os.listdir(self.current_path):
+                    item_path = os.path.join(self.current_path, item)
+                    name = os.path.splitext(item)[0]
+                    
+                    # 判断是文件夹还是程序
+                    icon_type = "folder" if os.path.isdir(item_path) else "program"
+                    
+                    # 添加按钮
+                    self.add_program_button(program_layout, row, col, name, icon_type, item_path)
+                    
+                    # 更新行列位置
+                    col += 1
+                    if col >= max_cols:
+                        col = 0
+                        row += 1
+                
+                scroll_area.setWidget(program_widget)
+                break
+        
+    def set_svg_icon(self, button, svg_content):
+        """设置SVG图标"""
+        # 创建QIcon
+        icon = QIcon()
+        
+        # 将SVG内容转换为字节流
+        svg_bytes = BytesIO(svg_content.encode('utf-8'))
+        
+        # 创建SVG渲染器
+        renderer = QSvgRenderer(svg_bytes.getvalue())
+        
+        # 创建图片
+        pixmap = QPixmap(32, 32)
+        pixmap.fill(Qt.transparent)
+        
+        # 创建画笔并渲染SVG
+        painter = QPainter(pixmap)
+        renderer.render(painter)
+        painter.end()
+        
+        # 设置图标
+        icon = QIcon(pixmap)
+        button.setIcon(icon)
+        button.setIconSize(QSize(20, 20))

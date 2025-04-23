@@ -1,0 +1,234 @@
+2025-04-22 10:49:58,344 - BetterExplorer - INFO - BetterExplorer 应用程序启动
+2025-04-22 10:49:58,344 - BetterExplorer - INFO - 显示器管理器初始化
+2025-04-22 10:49:58,346 - BetterExplorer - INFO - 更新屏幕信息: 检测到2个显示器
+2025-04-22 10:49:58,347 - BetterExplorer - INFO - 桌面管理器初始化
+2025-04-22 10:49:58,368 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 10:49:58,461 - BetterExplorer - INFO - Alt+Tab切换器初始化
+2025-04-22 10:49:58,461 - BetterExplorer - INFO - 任务栏初始化
+2025-04-22 10:49:58,461 - BetterExplorer - INFO - 开始菜单初始化
+2025-04-22 10:49:58,695 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 10:49:58,695 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 10:49:58,831 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 10:49:58,842 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 10:49:58,865 - BetterExplorer - INFO - 开始监听键盘事件
+2025-04-22 10:50:00,901 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 10:50:00,917 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 10:50:02,390 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 10:50:02,900 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 10:50:02,900 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 10:50:10,463 - BetterExplorer - INFO - 启动程序: 设置
+2025-04-22 10:50:10,463 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 10:50:10,479 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 10:50:12,748 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 10:50:12,748 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 10:50:13,611 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 10:50:14,144 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 10:50:14,144 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 10:54:32,408 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 10:54:32,424 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 10:54:33,343 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 10:54:33,839 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 10:54:33,839 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 10:58:11,864 - BetterExplorer - INFO - BetterExplorer 应用程序启动
+2025-04-22 10:58:11,864 - BetterExplorer - INFO - 显示器管理器初始化
+2025-04-22 10:58:11,866 - BetterExplorer - INFO - 更新屏幕信息: 检测到2个显示器
+2025-04-22 10:58:11,866 - BetterExplorer - INFO - 桌面管理器初始化
+2025-04-22 10:58:11,889 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 10:58:11,999 - BetterExplorer - INFO - Alt+Tab切换器初始化
+2025-04-22 10:58:12,000 - BetterExplorer - INFO - 任务栏初始化
+2025-04-22 10:58:12,003 - BetterExplorer - INFO - 开始菜单初始化
+2025-04-22 10:58:12,245 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 10:58:12,245 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 10:58:12,852 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 10:58:12,883 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 10:58:12,918 - BetterExplorer - INFO - 开始监听键盘事件
+2025-04-22 10:58:23,055 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 10:58:23,055 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 10:58:23,964 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 10:58:24,478 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 10:58:24,481 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 10:58:24,866 - BetterExplorer - INFO - 启动程序: 文件管理器
+2025-04-22 10:58:24,866 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:14:33,083 - BetterExplorer - INFO - BetterExplorer 应用程序启动
+2025-04-22 11:14:33,085 - BetterExplorer - INFO - 显示器管理器初始化
+2025-04-22 11:14:33,086 - BetterExplorer - INFO - 更新屏幕信息: 检测到2个显示器
+2025-04-22 11:14:33,087 - BetterExplorer - INFO - 桌面管理器初始化
+2025-04-22 11:14:33,105 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:14:33,199 - BetterExplorer - INFO - Alt+Tab切换器初始化
+2025-04-22 11:14:33,199 - BetterExplorer - INFO - 任务栏初始化
+2025-04-22 11:14:33,215 - BetterExplorer - INFO - 开始菜单初始化
+2025-04-22 11:14:33,445 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 11:14:33,445 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 11:14:34,032 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:14:34,057 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:14:34,089 - BetterExplorer - INFO - 开始监听键盘事件
+2025-04-22 11:14:36,493 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:14:36,493 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:14:37,615 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 11:14:38,136 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:14:38,136 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:14:38,634 - BetterExplorer - INFO - 启动程序: 文件管理器
+2025-04-22 11:14:38,634 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:15:59,285 - BetterExplorer - INFO - 删除文件: F:/视频
+2025-04-22 11:16:19,034 - BetterExplorer - INFO - 打开文件: F:/UserData/MainFolder/Jimmy/Music/音乐/GLOW.wav
+2025-04-22 11:16:37,826 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:16:37,826 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:16:38,601 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:16:38,605 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:16:39,008 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:16:39,017 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:16:39,550 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:16:39,552 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:16:39,592 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:16:39,596 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:16:40,118 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:16:40,122 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:16:40,158 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:16:40,162 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:16:40,686 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:16:40,686 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:17:02,249 - BetterExplorer - DEBUG - 刷新桌面
+2025-04-22 11:17:07,325 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:17:07,325 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:17:07,853 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:17:07,855 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:17:07,892 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:17:07,896 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:17:08,414 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:17:08,416 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:17:11,701 - BetterExplorer - DEBUG - 刷新桌面
+2025-04-22 11:17:13,645 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:17:13,645 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:17:14,186 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:17:14,189 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:17:14,224 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:17:14,229 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:17:14,769 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:17:14,770 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:17:14,809 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:17:14,813 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:17:16,017 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:17:16,022 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:17:18,220 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:17:18,223 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:17:18,745 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:17:18,749 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:17:18,853 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:17:18,857 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:17:21,770 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 11:17:22,275 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:17:22,275 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:17:26,412 - BetterExplorer - DEBUG - 进入文件夹: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Trinus Cardboard
+2025-04-22 11:17:27,936 - BetterExplorer - INFO - 启动程序: Trinus Cardboard
+2025-04-22 11:17:29,716 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:17:29,720 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:17:31,262 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 11:17:31,771 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:17:31,771 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:19:31,790 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:19:31,793 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:19:33,806 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 11:19:34,317 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:19:34,320 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:21:05,344 - BetterExplorer - INFO - BetterExplorer 应用程序启动
+2025-04-22 11:21:05,345 - BetterExplorer - INFO - 显示器管理器初始化
+2025-04-22 11:21:05,346 - BetterExplorer - INFO - 更新屏幕信息: 检测到2个显示器
+2025-04-22 11:21:05,346 - BetterExplorer - INFO - 桌面管理器初始化
+2025-04-22 11:21:05,368 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:21:05,469 - BetterExplorer - INFO - Alt+Tab切换器初始化
+2025-04-22 11:21:05,470 - BetterExplorer - INFO - 任务栏初始化
+2025-04-22 11:21:05,473 - BetterExplorer - INFO - 开始菜单初始化
+2025-04-22 11:21:05,704 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 11:21:05,705 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 11:21:05,848 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:21:05,874 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:21:05,907 - BetterExplorer - INFO - 开始监听键盘事件
+2025-04-22 11:21:06,848 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:21:06,851 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:21:07,418 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:21:07,422 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:21:08,226 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:21:08,230 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:21:08,940 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 11:21:09,477 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:21:09,480 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:21:39,551 - BetterExplorer - INFO - BetterExplorer 应用程序启动
+2025-04-22 11:21:39,552 - BetterExplorer - INFO - 显示器管理器初始化
+2025-04-22 11:21:39,553 - BetterExplorer - INFO - 更新屏幕信息: 检测到2个显示器
+2025-04-22 11:21:39,554 - BetterExplorer - INFO - 桌面管理器初始化
+2025-04-22 11:21:39,576 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:21:39,678 - BetterExplorer - INFO - Alt+Tab切换器初始化
+2025-04-22 11:21:39,680 - BetterExplorer - INFO - 任务栏初始化
+2025-04-22 11:21:39,681 - BetterExplorer - INFO - 开始菜单初始化
+2025-04-22 11:21:39,922 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 11:21:39,923 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 11:21:40,069 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:21:40,107 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:21:40,142 - BetterExplorer - INFO - 开始监听键盘事件
+2025-04-22 11:21:40,875 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:21:40,878 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:21:41,588 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:21:41,591 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:21:42,176 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:21:42,179 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:21:42,713 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:21:42,716 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:21:43,444 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:21:43,447 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:21:44,388 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 11:21:44,905 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:21:44,909 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:21:56,460 - BetterExplorer - INFO - 启动程序: 设置
+2025-04-22 11:21:56,461 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 11:21:56,462 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 11:21:59,498 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:46:46,199 - BetterExplorer - INFO - BetterExplorer 应用程序启动
+2025-04-22 11:46:46,199 - BetterExplorer - INFO - 显示器管理器初始化
+2025-04-22 11:46:46,201 - BetterExplorer - INFO - 更新屏幕信息: 检测到2个显示器
+2025-04-22 11:46:46,201 - BetterExplorer - INFO - 桌面管理器初始化
+2025-04-22 11:46:46,224 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:46:46,328 - BetterExplorer - INFO - Alt+Tab切换器初始化
+2025-04-22 11:46:46,329 - BetterExplorer - INFO - 任务栏初始化
+2025-04-22 11:46:46,332 - BetterExplorer - INFO - 开始菜单初始化
+2025-04-22 11:46:46,569 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 11:46:46,570 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 11:46:46,945 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:46:46,986 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:46:47,015 - BetterExplorer - INFO - 开始监听键盘事件
+2025-04-22 11:46:48,026 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:46:48,030 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:46:48,894 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 11:46:49,405 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:46:49,408 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:47:06,774 - BetterExplorer - INFO - 启动程序: 文件管理器
+2025-04-22 11:47:06,775 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:48:01,968 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:48:01,971 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:48:02,566 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:48:02,569 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:48:13,274 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:48:13,279 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:48:13,883 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:48:13,886 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:48:14,338 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:48:14,343 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:48:15,020 - BetterExplorer - DEBUG - 显示开始菜单
+2025-04-22 11:48:15,547 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:48:15,550 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:48:16,406 - BetterExplorer - INFO - 启动程序: 设置
+2025-04-22 11:48:16,407 - BetterExplorer - INFO - 设置模块初始化
+2025-04-22 11:48:16,409 - BetterExplorer - INFO - 成功加载设置文件
+2025-04-22 11:48:18,457 - BetterExplorer - INFO - 文件管理器初始化
+2025-04-22 11:48:20,992 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:48:20,995 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:48:21,643 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:48:21,646 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:48:21,698 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:48:21,701 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:48:22,256 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:48:22,259 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:48:22,324 - BetterExplorer - DEBUG - 任务栏显示
+2025-04-22 11:48:22,328 - BetterExplorer - INFO - 调整桌面大小: 任务栏显示, 高度=40
+2025-04-22 11:48:23,456 - BetterExplorer - DEBUG - 任务栏隐藏
+2025-04-22 11:48:23,459 - BetterExplorer - INFO - 调整桌面大小: 任务栏隐藏, 高度=40
+2025-04-22 11:48:26,798 - BetterExplorer - INFO - 打开文件: F:/UserData/MainFolder/Jimmy/桌面/NP.lnk
