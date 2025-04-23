@@ -120,13 +120,30 @@ class StartMenu(QWidget):
         
         # 添加用户信息区域
         user_layout = QHBoxLayout()
+        # 获取用户头像路径
+        avatar_path = os.path.join(os.environ.get('USERPROFILE'), 'AppData\\Roaming\\Microsoft\\Windows\\AccountPictures\\user-200-200.png')
+        
+        # 创建用户头像
         user_avatar = QLabel()
         user_avatar.setFixedSize(32, 32)
-        user_avatar.setStyleSheet(
-            "background-color: #3E3E42; border-radius: 16px;"
-        )
+        
+        # 检查头像文件是否存在
+        if os.path.exists(avatar_path):
+            pixmap = QPixmap(avatar_path).scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            user_avatar.setPixmap(pixmap)
+        else:
+            # 使用默认头像
+            user_avatar.setStyleSheet(
+                "background-color: #3E3E42; border-radius: 16px;"
+            )
         user_name = QLabel(os.environ.get('USERNAME'))
         user_name.setStyleSheet("font-size: 14px; padding-left: 10px;")
+        # 设置用户头像和名称的右键菜单
+        user_avatar.setContextMenuPolicy(Qt.CustomContextMenu)
+        user_avatar.customContextMenuRequested.connect(self.show_user_menu)
+        user_name.setContextMenuPolicy(Qt.CustomContextMenu)
+        user_name.customContextMenuRequested.connect(self.show_user_menu)
+        
         user_layout.addWidget(user_avatar)
         user_layout.addWidget(user_name)
         user_layout.addStretch()
@@ -267,23 +284,57 @@ class StartMenu(QWidget):
     
     def system_sleep(self):
         """系统睡眠"""
-        print("系统睡眠")
+        self.logger.info("系统睡眠")
         os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
         
     def system_hibernate(self):
         """系统休眠"""
-        print("系统休眠")
+        self.logger.info("系统休眠")
         os.system("rundll32.exe powrprof.dll,SetSuspendState 1,1,0")
     
     def system_shutdown(self):
         """系统关机"""
-        print("系统关机")
+        self.logger.info("系统关机")
         os.system("shutdown /s /t 0")
     
     def system_restart(self):
         """系统重启"""
-        print("系统重启")
+        self.logger.info("系统重启")
         os.system("shutdown /r /t 0")
+        
+    def show_user_menu(self, pos):
+        """显示用户上下文菜单"""
+        user_menu = QMenu(self)
+        user_menu.setStyleSheet(
+            "QMenu {background-color: #2D2D30; color: white; border: 1px solid #3F3F46;}"
+            "QMenu::item {padding: 5px 20px;}"
+            "QMenu::item:selected {background-color: #3E3E42;}"
+        )
+        
+        # 添加菜单选项
+        lock_action = QAction("锁定", self)
+        sign_out_action = QAction("注销", self)
+        
+        # 连接动作信号
+        lock_action.triggered.connect(self.system_lock)
+        sign_out_action.triggered.connect(self.system_sign_out)
+        
+        # 添加动作到菜单
+        user_menu.addAction(lock_action)
+        user_menu.addAction(sign_out_action)
+        
+        # 显示菜单
+        user_menu.exec_(self.mapToGlobal(pos))
+    
+    def system_lock(self):
+        """锁定系统"""
+        self.logger.info("锁定系统")
+        os.system("rundll32.exe user32.dll,LockWorkStation")
+    
+    def system_sign_out(self):
+        """注销用户"""
+        self.logger.info("注销用户")
+        os.system("shutdown /l")
     
     def toggle_visibility(self, button_pos):
         """切换开始菜单的可见性"""
