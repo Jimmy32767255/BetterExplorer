@@ -42,12 +42,17 @@ class Desktop(QMainWindow):
         # 设置窗口标题
         self.setWindowTitle("BetterExplorer Desktop")
         
-        # 获取桌面路径
-        self.desktop_path = os.path.join(os.environ.get('USERPROFILE'), 'Desktop')
+        # 从设置中获取桌面路径
+        from settings import Settings
+        self.desktop_path = Settings.get_setting("desktop_path", "")
         
-        # 确保桌面路径存在
-        if not os.path.exists(self.desktop_path):
-            self.desktop_path = os.path.join(os.environ.get('USERPROFILE'), '桌面')
+        # 如果未设置或路径不存在，使用默认路径
+        if not self.desktop_path or not os.path.exists(self.desktop_path):
+            self.desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
+            if not os.path.exists(self.desktop_path):
+                self.desktop_path = os.path.join(os.path.expanduser('~'), '桌面')
+                if not os.path.exists(self.desktop_path):
+                    self.desktop_path = os.path.expanduser('~')
         
         # 为每个显示器创建桌面窗口
         for screen_index, screen in enumerate(self.screens):

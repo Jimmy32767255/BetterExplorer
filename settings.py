@@ -10,7 +10,7 @@ import os
 import json
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QPushButton, QCheckBox, QTabWidget, QFrame,
-                             QScrollArea, QGroupBox, QMessageBox, QApplication)
+                             QScrollArea, QGroupBox, QMessageBox, QApplication, QLineEdit)
 from PyQt5.QtCore import Qt, QSettings, QSize
 from PyQt5.QtGui import QIcon, QFont
 
@@ -159,6 +159,24 @@ class Settings(QWidget):
         )
         system_layout_group.addWidget(self.disable_system_explorer_checkbox)
         
+        # 添加桌面路径设置
+        desktop_path_group = QGroupBox("桌面路径设置")
+        desktop_path_group.setStyleSheet(
+            "QGroupBox {border: 1px solid #3F3F46; border-radius: 5px; margin-top: 10px; padding-top: 10px;}"
+            "QGroupBox::title {subcontrol-origin: margin; subcontrol-position: top center; padding: 0 5px;}"
+        )
+        desktop_path_layout = QVBoxLayout(desktop_path_group)
+        
+        self.desktop_path_edit = QLineEdit()
+        self.desktop_path_edit.setPlaceholderText("请输入桌面路径")
+        self.desktop_path_edit.setText(self.settings.get("desktop_path", ""))
+        self.desktop_path_edit.setStyleSheet(
+            "QLineEdit {background-color: #3E3E42; color: white; border: 1px solid #555555; padding: 5px;}"
+        )
+        desktop_path_layout.addWidget(self.desktop_path_edit)
+        
+        system_layout_group.addWidget(desktop_path_group)
+        
         # 添加退出按钮
         exit_button = QPushButton("退出程序")
         exit_button.setFixedSize(120, 30)
@@ -205,7 +223,8 @@ class Settings(QWidget):
             # 出错时使用默认设置
             self.settings = {
                 "center_start_button": False,
-                "disable_system_explorer": False
+                "disable_system_explorer": False,
+                "desktop_path": ""
             }
     
     def exit_application(self):
@@ -228,6 +247,7 @@ class Settings(QWidget):
             self.settings["center_start_button"] = self.center_start_button_checkbox.isChecked()
             self.settings["auto_hide_taskbar"] = self.auto_hide_taskbar_checkbox.isChecked()
             self.settings["disable_system_explorer"] = self.disable_system_explorer_checkbox.isChecked()
+            self.settings["desktop_path"] = self.desktop_path_edit.text()
             
             # 保存到文件
             with open(self.settings_file, 'w', encoding='utf-8') as f:
