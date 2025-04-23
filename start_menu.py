@@ -267,22 +267,22 @@ class StartMenu(QWidget):
     
     def system_sleep(self):
         """系统睡眠"""
-        print("系统睡眠")
+        self.logger.info("系统睡眠")
         os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
         
     def system_hibernate(self):
         """系统休眠"""
-        print("系统休眠")
+        self.logger.info("系统休眠")
         os.system("rundll32.exe powrprof.dll,SetSuspendState 1,1,0")
     
     def system_shutdown(self):
         """系统关机"""
-        print("系统关机")
+        self.logger.info("系统关机")
         os.system("shutdown /s /t 0")
     
     def system_restart(self):
         """系统重启"""
-        print("系统重启")
+        self.logger.info("系统重启")
         os.system("shutdown /r /t 0")
     
     def toggle_visibility(self, button_pos):
