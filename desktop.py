@@ -7,9 +7,10 @@ BetterExplorer - 桌面管理模块
 """
 
 import os
+import shutil
 from PyQt5.QtWidgets import (QMainWindow, QDesktopWidget, QVBoxLayout, 
                              QWidget, QLabel, QMenu, QAction, QFileDialog,
-                             QListView, QMessageBox)
+                             QListView, QMessageBox, QInputDialog)
 from PyQt5.QtCore import Qt, QSize, QPoint, QRect, QDir
 from PyQt5.QtGui import QIcon, QPixmap, QCursor
 from PyQt5.QtWidgets import QFileSystemModel
@@ -57,7 +58,7 @@ class Desktop(QMainWindow):
         # 为每个显示器创建桌面窗口
         for screen_index, screen in enumerate(self.screens):
             desktop_widget = QWidget()
-            desktop_widget.setWindowFlags(Qt.FramelessWindowHint)
+            desktop_widget.setWindowFlags(Qt.WindowFlags(Qt.FramelessWindowHint))
             desktop_widget.setGeometry(QRect(screen['x'], screen['y'], screen['width'], screen['height']))
             
             # 设置桌面背景
@@ -68,6 +69,8 @@ class Desktop(QMainWindow):
             file_model = QFileSystemModel()
             file_model.setRootPath(self.desktop_path)
             file_model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot)
+            file_model.setOption(QFileSystemModel.DontUseCustomDirectoryIcons)
+            file_model.setOption(QFileSystemModel.DontWatchForChanges)
             self.file_models.append(file_model)
             
             # 创建文件视图
@@ -80,7 +83,7 @@ class Desktop(QMainWindow):
             file_view.setResizeMode(QListView.Adjust)
             file_view.setWrapping(True)
             file_view.setSelectionMode(QListView.ExtendedSelection)
-            file_view.setContextMenuPolicy(Qt.CustomContextMenu)
+            file_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             file_view.customContextMenuRequested.connect(self.show_context_menu)
             self.file_views.append(file_view)
             
@@ -98,22 +101,57 @@ class Desktop(QMainWindow):
     
     def show_context_menu(self, position):
         """显示右键菜单"""
+        # 获取触发右键菜单的QListView实例
+        view = self.sender()
+        if not isinstance(view, QListView):
+            return
+            
+        # 使用QListView的itemAt方法获取当前位置的项
+        item = view.indexAt(position)
+        file_path = view.model().filePath(item) if item.isValid() else None if item.isValid() else None
+        
         context_menu = QMenu()
         
-        # 添加菜单项
-        new_folder_action = QAction("新建文件夹", self)
-        new_folder_action.triggered.connect(self.create_new_folder)
-        
-        refresh_action = QAction("刷新", self)
-        refresh_action.triggered.connect(self.refresh_desktop)
-        
-        open_file_manager_action = QAction("打开文件管理器", self)
-        open_file_manager_action.triggered.connect(self.open_file_manager)
-        
-        # 将动作添加到菜单
-        context_menu.addAction(new_folder_action)
-        context_menu.addAction(refresh_action)
-        context_menu.addAction(open_file_manager_action)
+        if file_path:
+            # 文件/文件夹右键菜单
+            open_action = QAction("打开", self)
+            open_action.triggered.connect(lambda: self.open_file(file_path))
+            
+            copy_action = QAction("复制", self)
+            copy_action.triggered.connect(lambda: self.copy_file(file_path))
+            
+            cut_action = QAction("剪切", self)
+            cut_action.triggered.connect(lambda: self.cut_file(file_path))
+            
+            paste_action = QAction("粘贴", self)
+            paste_action.triggered.connect(self.paste_file)
+            
+            delete_action = QAction("删除", self)
+            delete_action.triggered.connect(lambda: self.delete_file(file_path))
+            
+            rename_action = QAction("重命名", self)
+            rename_action.triggered.connect(lambda: self.rename_file(file_path))
+            
+            context_menu.addAction(open_action)
+            context_menu.addAction(copy_action)
+            context_menu.addAction(cut_action)
+            context_menu.addAction(paste_action)
+            context_menu.addAction(delete_action)
+            context_menu.addAction(rename_action)
+        else:
+            # 空白处右键菜单
+            new_folder_action = QAction("新建文件夹", self)
+            new_folder_action.triggered.connect(self.create_new_folder)
+            
+            refresh_action = QAction("刷新", self)
+            refresh_action.triggered.connect(self.refresh_desktop)
+            
+            open_file_manager_action = QAction("打开文件管理器", self)
+            open_file_manager_action.triggered.connect(self.open_file_manager)
+            
+            context_menu.addAction(new_folder_action)
+            context_menu.addAction(refresh_action)
+            context_menu.addAction(open_file_manager_action)
         
         # 显示菜单
         context_menu.exec_(QCursor.pos())
@@ -201,3 +239,87 @@ class Desktop(QMainWindow):
                 # 刷新桌面
                 desktop_widget.update()
             self.logger.info(f"调整桌面大小: 任务栏{'隐藏' if is_taskbar_hidden else '显示'}, 高度={taskbar_height}")
+
+    def copy_file(self, file_path):
+        """复制文件到剪贴板"""
+        self.clipboard_file = file_path
+        self.clipboard_action = "copy"
+        self.logger.info(f"已复制文件: {file_path}")
+
+    def cut_file(self, file_path):
+        """剪切文件到剪贴板"""
+        self.clipboard_file = file_path
+        self.clipboard_action = "cut"
+        self.logger.info(f"已剪切文件: {file_path}")
+
+    def open_file(self, file_path):
+        """打开文件或文件夹"""
+        if os.path.isdir(file_path):
+            # 创建文件管理器实例并打开目标路径
+            from file_manager import FileManager
+            file_manager = FileManager()
+            file_manager.navigate_to(file_path)
+            file_manager.show()
+            self.file_manager_instance = file_manager
+        else:
+            try:
+                os.startfile(file_path)
+                self.logger.info(f"打开文件: {file_path}")
+            except Exception as e:
+                self.logger.error(f"打开文件失败: {file_path}, 错误: {str(e)}")
+                QMessageBox.warning(self, "错误", f"无法打开文件: {str(e)}")
+
+    def delete_file(self, file_path):
+        """删除文件"""
+        reply = QMessageBox.question(self, "确认删除", f"确定要删除 {os.path.basename(file_path)} 吗？", QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            try:
+                if os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+                else:
+                    os.remove(file_path)
+                self.refresh_desktop()
+                self.logger.info(f"删除成功: {file_path}")
+            except Exception as e:
+                self.logger.error(f"删除失败: {str(e)}")
+                QMessageBox.warning(self, "错误", f"删除失败: {str(e)}")
+
+    def rename_file(self, file_path):
+        """重命名文件"""
+        old_name = os.path.basename(file_path)
+        new_name, ok = QInputDialog.getText(self, "重命名", "新名称:", text=old_name)
+        if ok and new_name:
+            try:
+                new_path = os.path.join(os.path.dirname(file_path), new_name)
+                os.rename(file_path, new_path)
+                self.refresh_desktop()
+                self.logger.info(f"重命名成功: {old_name} -> {new_name}")
+            except Exception as e:
+                self.logger.error(f"重命名失败: {str(e)}")
+                QMessageBox.warning(self, "错误", f"重命名失败: {str(e)}")
+
+    def paste_file(self):
+        """粘贴剪贴板中的文件"""
+        if not hasattr(self, 'clipboard_file') or not hasattr(self, 'clipboard_action'):
+            return
+
+        try:
+            file_name = os.path.basename(self.clipboard_file)
+            target_path = os.path.join(self.desktop_path, file_name)
+
+            if self.clipboard_action == "copy":
+                if os.path.isdir(self.clipboard_file):
+                    shutil.copytree(self.clipboard_file, target_path)
+                else:
+                    shutil.copy2(self.clipboard_file, target_path)
+            elif self.clipboard_action == "cut":
+                shutil.move(self.clipboard_file, target_path)
+                # 清空剪贴板
+                self.clipboard_file = None
+                self.clipboard_action = None
+
+            self.refresh_desktop()
+            self.logger.info(f"文件粘贴成功: {target_path}")
+        except Exception as e:
+            self.logger.error(f"文件粘贴失败: {str(e)}")
+            QMessageBox.warning(self, "错误", f"粘贴操作失败: {str(e)}")
