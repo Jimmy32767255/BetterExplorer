@@ -6,9 +6,12 @@ BetterExplorer - Alt+Tab切换模块
 负责实现Alt+Tab窗口切换功能
 """
 
+
 import sys
 import win32con
 import win32gui
+import ctypes
+import win32api
 import win32process
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QListWidget, QListWidgetItem)
@@ -66,10 +69,6 @@ class AltTabSwitcher(QWidget):
     def start_monitoring(self):
         """开始监听Alt+Tab组合键"""
         # 使用pywin32库的SetWindowsHookEx函数设置低级键盘钩子
-        import ctypes
-        import win32api
-        import win32con
-        
         self.logger.info("开始监听键盘事件")
         
         # 定义键盘钩子回调函数
@@ -84,6 +83,8 @@ class AltTabSwitcher(QWidget):
             scan_code = key_info[1]  # 扫描码
             flags = key_info[2]  # 标志位
             time = key_info[3]  # 时间戳
+            
+            self.logger.debug(f"键盘事件: vk_code={vk_code}, scan_code={scan_code}, flags={flags}, time={time}")
             
             # 检测Alt键状态
             if vk_code == win32con.VK_MENU:  # Alt键的虚拟键码
@@ -103,6 +104,7 @@ class AltTabSwitcher(QWidget):
                     
                     # 处理Alt+Tab组合键
                     if self.alt_pressed and self.tab_pressed:
+                        self.logger.debug(f"检测到Alt+Tab组合键, shift状态: {shift_pressed}")
                         if shift_pressed:
                             self.on_alt_shift_tab_pressed()
                         else:
@@ -119,7 +121,6 @@ class AltTabSwitcher(QWidget):
         )(low_level_keyboard_handler)
         
         # 安装键盘钩子
-        # 安装键盘钩子
         self.keyboard_hook = ctypes.windll.user32.SetWindowsHookExW(
             win32con.WH_KEYBOARD_LL,  # 低级键盘钩子
             self.keyboard_proc,
@@ -131,37 +132,46 @@ class AltTabSwitcher(QWidget):
         if not self.keyboard_hook:
             raise Exception("键盘钩子安装失败")
         
-    def check_keyboard(self):
-        """检查键盘状态"""
-        # 此方法不再需要，因为我们使用了Windows钩子机制
-        # 钩子回调函数会自动处理键盘事件
-        pass
-        
     def __del__(self):
         """析构函数，确保钩子被正确释放"""
         # 释放键盘钩子
         if hasattr(self, 'keyboard_hook') and self.keyboard_hook:
-            import ctypes
             ctypes.windll.user32.UnhookWindowsHookEx(self.keyboard_hook)
             self.keyboard_hook = None
         
     def show_switcher(self):
         """显示窗口切换器"""
+        self.logger.debug("开始显示窗口切换器")
+        
         # 获取所有窗口
         self.update_window_list()
+        self.logger.debug(f"窗口列表更新完成，共找到 {len(self.window_list)} 个窗口\n详细列表：{[w['title'] for w in self.window_list]}")
         
         # 更新窗口列表显示
         self.window_list_widget.clear()
+        if not self.window_list:
+            self.logger.warning("没有找到可切换的窗口，窗口切换器将不会显示")
+            return
+            
         for window in self.window_list:
             item = QListWidgetItem(window['title'])
             # 这里应该获取窗口图标，为简化示例，使用默认图标
             self.window_list_widget.addItem(item)
+            self.logger.debug(f"添加窗口到列表: {window['title']}")
         
         # 居中显示
         self.center_on_screen()
+        self.logger.debug("窗口切换器已居中")
         
         # 显示窗口
         self.show()
+        self.logger.debug("窗口切换器显示完成")
+        
+        # 选中第一个窗口
+        if self.window_list:
+            self.current_index = 0
+            self.window_list_widget.setCurrentRow(0)
+            self.logger.debug(f"已选中第一个窗口: {self.window_list[0]['title']}")
         
     def update_window_list(self):
         """更新窗口列表"""
@@ -181,17 +191,18 @@ class AltTabSwitcher(QWidget):
             _, process_id = win32process.GetWindowThreadProcessId(hwnd)
             class_name = win32gui.GetClassName(hwnd)
             
-            # 过滤掉BetterExplorer自身的窗口
-            # 桌面窗口、任务栏、开始菜单等
-            if "BetterExplorer" in title:
-                return True
-            
-            # 过滤掉Windows桌面和任务栏
-            if class_name in ["Progman", "Shell_TrayWnd", "Shell_SecondaryTrayWnd", "DV2ControlHost"]:
+            # 过滤掉特定的系统窗口
+            if class_name in ["Shell_TrayWnd", "Shell_SecondaryTrayWnd", "DV2ControlHost"]:
+                self.logger.debug(f"过滤掉系统窗口: {title} (类名: {class_name})")
                 return True
                 
             # 过滤掉Alt+Tab切换器自身
             if title == "窗口切换器" or "AltTabSwitcher" in class_name:
+                self.logger.debug(f"过滤掉切换器窗口: {title}")
+                return True
+                
+            # 过滤掉空标题或不可见的窗口
+            if not title or not win32gui.IsWindowVisible(hwnd):
                 return True
             
             # 添加到窗口列表
@@ -209,6 +220,7 @@ class AltTabSwitcher(QWidget):
         
     def center_on_screen(self):
         """将窗口居中显示"""
+        from PyQt5.QtWidgets import QApplication
         screen_geometry = QApplication.desktop().screenGeometry()
         x = (screen_geometry.width() - self.width()) // 2
         y = (screen_geometry.height() - self.height()) // 2
@@ -227,23 +239,43 @@ class AltTabSwitcher(QWidget):
 
     def next_window(self):
         """切换到下一个窗口"""
-        if self.window_list:
-            self.current_index = (self.current_index + 1) % len(self.window_list)
-            self.window_list_widget.setCurrentRow(self.current_index)
-            self.logger.debug("切换到下一个窗口")
+        if not self.window_list:
+            self.logger.warning("窗口列表为空，无法切换窗口")
+            return
+            
+        # 更新当前索引
+        self.current_index = (self.current_index + 1) % len(self.window_list)
+        self.window_list_widget.setCurrentRow(self.current_index)
+        
+        # 激活选中的窗口
+        window = self.window_list[self.current_index]
+        hwnd = window['hwnd']
+        self.logger.debug(f"切换到窗口: {window['title']} (hwnd={hwnd})")
+        win32gui.SetForegroundWindow(hwnd)
 
     def previous_window(self):
         """切换到上一个窗口"""
         if self.window_list:
             self.current_index = (self.current_index - 1) % len(self.window_list)
             self.window_list_widget.setCurrentRow(self.current_index)
-            self.logger.debug("切换到上一个窗口")
+            
+            # 激活选中的窗口
+            window = self.window_list[self.current_index]
+            hwnd = window['hwnd']
+            self.logger.debug(f"切换到窗口: {window['title']} (hwnd={hwnd})")
+            win32gui.SetForegroundWindow(hwnd)
+            # 如果窗口最小化，则恢复
+            if win32gui.IsIconic(hwnd):
+                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
 
     def on_alt_tab_pressed(self):
         """处理Alt+Tab按下事件"""
+        self.logger.debug("处理Alt+Tab按下事件")
         if not self.isVisible():
+            self.logger.debug("窗口切换器未显示，准备显示切换器")
             self.show_switcher()
-            self.logger.debug("显示窗口切换器")
+        else:
+            self.logger.debug("窗口切换器已显示，准备切换到下一个窗口")
         self.next_window()
 
     def on_alt_shift_tab_pressed(self):
@@ -254,8 +286,17 @@ class AltTabSwitcher(QWidget):
         self.previous_window()
 
     def on_alt_released(self):
-        """处理Alt释放事件"""
+        """处理Alt键释放事件"""
+        self.logger.debug("Alt键释放")
         if self.isVisible():
+            self.logger.debug("窗口切换器可见，准备隐藏")
             self.hide()
-            self.logger.debug("隐藏窗口切换器")
-            self.switch_to_window(self.current_index)
+            # 激活当前选中的窗口
+            if self.window_list and 0 <= self.current_index < len(self.window_list):
+                window = self.window_list[self.current_index]
+                hwnd = window['hwnd']
+                self.logger.debug(f"激活最终选中的窗口: {window['title']} (hwnd={hwnd})")
+                win32gui.SetForegroundWindow(hwnd)
+                # 如果窗口最小化，则恢复
+                if win32gui.IsIconic(hwnd):
+                    win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
