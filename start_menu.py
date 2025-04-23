@@ -247,7 +247,15 @@ class StartMenu(QWidget):
             
             # 保存设置实例，防止被垃圾回收
             self.settings_instance = settings_window
-        # 其他程序可以在这里添加相应的处理代码
+        else:
+            # 处理其他程序
+            try:
+                if os.path.isfile(item_path):
+                    os.startfile(item_path)
+                elif os.path.isdir(item_path):
+                    os.startfile(item_path)
+            except Exception as e:
+                self.logger.error(f"启动程序失败: {e}")
         
         # 点击后隐藏开始菜单
         self.hide()
