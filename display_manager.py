@@ -9,6 +9,7 @@ BetterExplorer - 显示器管理模块
 import sys
 from PyQt5.QtWidgets import QApplication, QDesktopWidget
 from PyQt5.QtCore import QRect
+from log import Logger
 
 
 class DisplayManager:
@@ -22,7 +23,6 @@ class DisplayManager:
             self.app = QApplication.instance()
         
         # 初始化日志记录器
-        from log import Logger
         self.logger = Logger()
         self.logger.info("显示器管理器初始化")
         

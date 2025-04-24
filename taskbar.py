@@ -15,6 +15,8 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QLabel, QPushButton,
 from PyQt5.QtCore import (Qt, QTimer, QSize, QRect, QPropertyAnimation,
                           QPoint, QEvent, QEasingCurve)
 from PyQt5.QtGui import QIcon, QFont, QPixmap, QCursor
+from log import Logger
+from settings import Settings
 
 
 class TaskBar(QWidget):
@@ -32,7 +34,7 @@ class TaskBar(QWidget):
         self.taskbar_height = 40
         
         # 初始化日志记录器
-        from log import Logger
+        
         self.logger = Logger()
         self.logger.info("任务栏初始化")
         
@@ -49,7 +51,6 @@ class TaskBar(QWidget):
         self.screens = self.display_manager.get_screens()
         
         # 导入设置模块
-        from settings import Settings
         
         # 获取设置
         self.center_start_button = Settings.get_setting("center_start_button", False)

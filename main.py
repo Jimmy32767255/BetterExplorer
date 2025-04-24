@@ -22,6 +22,7 @@ from start_menu import StartMenu
 from hotkey import HotkeyManager
 from log import Logger
 from settings import Settings
+from log import Logger
 
 
 class BetterExplorer:
@@ -57,7 +58,7 @@ class BetterExplorer:
         self.desktop.set_taskbar(self.taskbar)
         
         # 初始化开始菜单
-        self.start_menu = StartMenu(self.display_manager)
+        self.start_menu = StartMenu(self.display_manager, self.taskbar)
         
         # 连接任务栏开始按钮和开始菜单
         for taskbar_info in self.taskbar.taskbar_widgets:
@@ -93,11 +94,6 @@ class BetterExplorer:
     
     def cleanup(self):
         """程序退出时的清理工作"""
-        # 导入设置和文件管理器
-        from settings import Settings
-        from file_manager import FileManager
-        from log import Logger
-        
         # 如果系统资源管理器被关闭，则重新启动它
         if Settings.get_setting("disable_system_explorer", False):
             file_manager = FileManager()

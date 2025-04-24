@@ -13,6 +13,8 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QScrollArea, QGroupBox, QMessageBox, QApplication, QLineEdit)
 from PyQt5.QtCore import Qt, QSettings, QSize
 from PyQt5.QtGui import QIcon, QFont
+from log import Logger
+
 
 
 class Settings(QWidget):
@@ -24,7 +26,6 @@ class Settings(QWidget):
         self.resize(600, 400)
         
         # 初始化日志记录器
-        from log import Logger
         self.logger = Logger()
         self.logger.info("设置模块初始化")
         
@@ -103,36 +104,12 @@ class Settings(QWidget):
         # 添加弹性空间
         ui_layout.addStretch(1)
         
-        # 添加按钮区域
-        button_layout = QHBoxLayout()
-        button_layout.setAlignment(Qt.AlignRight)
         
-        # 添加保存按钮
-        save_button = QPushButton("保存")
-        save_button.setFixedSize(80, 30)
-        save_button.setStyleSheet(
-            "QPushButton {background-color: #0078D7; color: white; border: none; border-radius: 3px;}"
-            "QPushButton:hover {background-color: #1C97EA;}"
-            "QPushButton:pressed {background-color: #00559B;}"
-        )
-        save_button.clicked.connect(self.save_settings)
-        button_layout.addWidget(save_button)
-        
-        # 添加取消按钮
-        cancel_button = QPushButton("取消")
-        cancel_button.setFixedSize(80, 30)
-        cancel_button.setStyleSheet(
-            "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px;}"
-            "QPushButton:hover {background-color: #505054;}"
-            "QPushButton:pressed {background-color: #0078D7;}"
-        )
-        cancel_button.clicked.connect(self.close)
-        button_layout.addWidget(cancel_button)
-        
-        ui_layout.addLayout(button_layout)
-        
-        # 将选项卡添加到选项卡部件
+        # 添加选项卡添加到选项卡部件
         tab_widget.addTab(ui_tab, "界面设置")
+        
+        # 添加按钮区域到主布局
+        main_layout.addWidget(tab_widget)
         
         # 创建系统设置选项卡
         system_tab = QWidget()
@@ -176,6 +153,43 @@ class Settings(QWidget):
         desktop_path_layout.addWidget(self.desktop_path_edit)
         
         system_layout_group.addWidget(desktop_path_group)
+
+                # 添加系统设置组到布局
+        system_layout.addWidget(system_group)
+        
+        # 添加弹性空间
+        system_layout.addStretch(1)
+        
+        # 添加系统设置选项卡
+        tab_widget.addTab(system_tab, "系统设置")
+        
+        # 添加按钮区域到主布局
+        button_layout = QHBoxLayout()
+        button_layout.setAlignment(Qt.AlignRight)
+        
+        # 添加保存按钮
+        save_button = QPushButton("保存")
+        save_button.setFixedSize(80, 30)
+        save_button.setStyleSheet(
+            "QPushButton {background-color: #0078D7; color: white; border: none; border-radius: 3px;}"
+            "QPushButton:hover {background-color: #1C97EA;}"
+            "QPushButton:pressed {background-color: #00559B;}"
+        )
+        save_button.clicked.connect(self.save_settings)
+        button_layout.addWidget(save_button)
+        
+        # 添加取消按钮
+        cancel_button = QPushButton("取消")
+        cancel_button.setFixedSize(80, 30)
+        cancel_button.setStyleSheet(
+            "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px;}"
+            "QPushButton:hover {background-color: #505054;}"
+            "QPushButton:pressed {background-color: #0078D7;}"
+        )
+        cancel_button.clicked.connect(self.close)
+        button_layout.addWidget(cancel_button)
+        
+        main_layout.addLayout(button_layout)
         
         # 添加退出按钮
         exit_button = QPushButton("退出程序")
@@ -229,8 +243,8 @@ class Settings(QWidget):
     
     def exit_application(self):
         """退出应用程序"""
-        # 导入并创建文件管理器实例以检查系统资源管理器状态
         from file_manager import FileManager
+        # 创建文件管理器实例以检查系统资源管理器状态
         file_manager = FileManager()
         
         # 如果系统资源管理器被关闭，则重新启动它

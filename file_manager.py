@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (QMainWindow, QTreeView, QListView, QFileSystemModel
                              QComboBox)
 from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QIcon
+from log import Logger
 
 
 class FileManager(QMainWindow):
@@ -26,7 +27,6 @@ class FileManager(QMainWindow):
         self.current_path = os.path.expanduser("~")
         
         # 初始化日志记录器
-        from log import Logger
         self.logger = Logger()
         self.logger.info("文件管理器初始化")
         
@@ -59,6 +59,8 @@ class FileManager(QMainWindow):
         # 创建文件系统模型
         self.model = QFileSystemModel()
         self.model.setRootPath(QDir.rootPath())
+        self.model.setOption(QFileSystemModel.DontUseCustomDirectoryIcons)
+        self.model.setOption(QFileSystemModel.DontWatchForChanges)
         
         # 创建列表视图
         self.list_view = QListView()
@@ -147,6 +149,10 @@ class FileManager(QMainWindow):
     
     def refresh(self):
         """刷新当前视图"""
+        # 强制刷新文件系统模型
+        self.model.setRootPath('')
+        self.model.setRootPath(QDir.rootPath())
+        self.list_view.reset()
         self.list_view.setRootIndex(self.model.index(self.current_path))
     
     def show_context_menu(self, position):
@@ -269,6 +275,7 @@ class FileManager(QMainWindow):
     
     def stop_system_explorer(self):
         """停止系统资源管理器进程"""
+        from settings import Settings
         try:
             for proc in psutil.process_iter(['pid', 'name']):
                 if proc.info['name'].lower() == 'explorer.exe':
@@ -279,6 +286,7 @@ class FileManager(QMainWindow):
     
     def start_system_explorer(self):
         """启动系统资源管理器进程"""
+        from settings import Settings
         try:
             subprocess.Popen('explorer.exe')
             self.logger.info("系统资源管理器已启动")

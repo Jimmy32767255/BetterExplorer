@@ -12,11 +12,15 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBut
                              QLineEdit, QScrollArea, QFrame, QGridLayout, 
                              QToolButton, QSizePolicy, QMenu, QAction)
 from PyQt5.QtCore import Qt, QSize, QRect, QPoint
-from PyQt5.QtGui import QIcon, QFont, QPixmap, QPainter
+from PyQt5.QtGui import QIcon, QFont, QPixmap, QPainter, QCursor
 from PyQt5.QtSvg import QSvgRenderer
 from io import BytesIO
 from icons import file_manager_icon, settings_icon, power_icon
-
+from PyQt5.QtWidgets import QFileIconProvider
+from log import Logger
+from uwp_app_menu import get_uwp_apps, launch_uwp_app
+from file_manager import FileManager
+from settings import Settings
 
 class StartMenu(QWidget):
     """开始菜单类，提供开始菜单功能"""
@@ -25,9 +29,9 @@ class StartMenu(QWidget):
         super().__init__(parent)
         self.display_manager = display_manager
         self.is_visible = False
+        self.taskbar = parent  # 保存任务栏引用
         
         # 初始化日志记录器
-        from log import Logger
         self.logger = Logger()
         self.logger.info("开始菜单初始化")
         
@@ -35,9 +39,10 @@ class StartMenu(QWidget):
         self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         
-        # 初始化当前路径
-        self.current_path = os.path.join(os.environ.get('ProgramData', 'C:\ProgramData'),
-                                      'Microsoft\Windows\Start Menu\Programs')
+        # 初始化默认路径和当前路径
+        self.default_start_menu_path = os.path.join(os.environ.get('ProgramData', 'C:\ProgramData'),
+                                                  'Microsoft\Windows\Start Menu\Programs')
+        self.current_path = self.default_start_menu_path
         
         # 初始化UI
         self.init_ui()
@@ -91,10 +96,33 @@ class StartMenu(QWidget):
         program_layout.setContentsMargins(0, 0, 0, 0)
         program_layout.setSpacing(10)
         
-        # 从当前目录读取程序列表
+        # 添加UWP应用入口
+        uwp_button = QPushButton("UWP 应用")
+        uwp_button.setStyleSheet(
+            "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+            "QPushButton:hover {background-color: #505054;}"
+        )
+        uwp_button.clicked.connect(self.show_uwp_apps)
+        # 添加返回按钮
+        if self.current_path != os.path.expanduser('~'):
+            back_button = QToolButton()
+            back_button.setText('返回上级')
+            back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
+            back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            back_button.setStyleSheet(
+                "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+                "QToolButton:hover {background-color: #505054;}"
+            )
+            back_button.clicked.connect(self.go_back)
+            program_layout.addWidget(back_button, 0, 0, 1, 3)
+            program_layout.addWidget(uwp_button, 1, 0, 1, 3)
+        else:
+            program_layout.addWidget(uwp_button, 2, 0, 1, 3)
+        
+        # 遍历当前目录
         row = 0
         col = 0
-        max_cols = 3  # 每行最多显示3个程序
+        max_cols = 3
         
         for item in os.listdir(self.current_path):
             item_path = os.path.join(self.current_path, item)
@@ -201,11 +229,22 @@ class StartMenu(QWidget):
         button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         button.setFixedSize(100, 80)
         
-        # 设置图标
-        button.setIcon(QIcon())
-        button.setIconSize(QSize(32, 32))
+        # 创建文件图标提供器
+        icon_provider = QFileIconProvider()
         
-        # 设置样式
+        # 根据类型设置图标
+        if icon_type == "folder":
+            button.setIcon(icon_provider.icon(QFileIconProvider.Folder))
+        else:
+            # 特殊处理系统应用图标
+            if name == "文件管理器":
+                self.set_svg_icon(button, file_manager_icon)
+            elif name == "设置":
+                self.set_svg_icon(button, settings_icon)
+            else:
+                button.setIcon(icon_provider.icon(QFileIconProvider.File))
+        
+        # 保持原有样式设置
         button.setStyleSheet(
             "QToolButton {background-color: transparent; color: white; border: none; text-align: center;}"
             "QToolButton:hover {background-color: #3E3E42; border-radius: 5px;}"
@@ -218,6 +257,28 @@ class StartMenu(QWidget):
         layout.addWidget(button, row, col)
         return button
     
+    def show_uwp_apps(self):
+        """显示UWP应用列表"""
+        apps = get_uwp_apps()
+        menu = QMenu(self)
+        menu.setStyleSheet(
+            "QMenu {background-color: #2D2D30; color: white; border: 1px solid #3F3F46;}"
+            "QMenu::item {padding: 5px 20px;}"
+            "QMenu::item:selected {background-color: #3E3E42;}"
+        )
+        
+        for app in apps:
+            action = QAction(app['name'], self)
+            action.triggered.connect(lambda checked, a=app: launch_uwp_app(a['appid']))
+            menu.addAction(action)
+        
+        menu.exec_(QCursor.pos())
+
+    def go_back(self):
+        """返回上级目录"""
+        self.current_path = os.path.dirname(self.current_path)
+        self.refresh_program_list()
+
     def on_program_clicked(self, program_name, item_path):
         """处理程序点击事件"""
         # 判断是否是文件夹
@@ -233,7 +294,7 @@ class StartMenu(QWidget):
         # 根据程序名称执行不同操作
         if program_name == "文件管理器":
             # 导入并创建文件管理器实例
-            from file_manager import FileManager
+            
             file_manager = FileManager()
             file_manager.show()
             
@@ -241,7 +302,7 @@ class StartMenu(QWidget):
             self.file_manager_instance = file_manager
         elif program_name == "设置":
             # 导入并创建设置实例
-            from settings import Settings
+            
             settings_window = Settings()
             settings_window.show()
             
@@ -344,6 +405,22 @@ class StartMenu(QWidget):
         self.logger.info("注销用户")
         os.system("shutdown /l")
     
+    def go_back_in_start_menu(self):
+        """在开始菜单程序列表中返回上一级目录"""
+        parent_path = os.path.dirname(self.current_path)
+        # 确保父路径有效且不低于默认起始路径
+        if parent_path and parent_path != self.current_path and parent_path.startswith(self.default_start_menu_path):
+            self.current_path = parent_path
+            self.logger.debug(f"返回到文件夹: {self.current_path}")
+            self.refresh_program_list()
+        elif parent_path == self.default_start_menu_path:
+             # 如果父路径就是默认路径，也允许返回
+            self.current_path = parent_path
+            self.logger.debug(f"返回到顶层文件夹: {self.current_path}")
+            self.refresh_program_list()
+        else:
+            self.logger.warning(f"无法返回上一级，当前路径: {self.current_path}, 父路径: {parent_path}")
+
     def toggle_visibility(self, button_pos):
         """切换开始菜单的可见性"""
         if self.is_visible:
@@ -352,8 +429,7 @@ class StartMenu(QWidget):
             self.logger.debug("隐藏开始菜单")
         else:
             # 重置当前路径为默认路径
-            self.current_path = os.path.join(os.environ.get('ProgramData', 'C:\ProgramData'),
-                                          'Microsoft\Windows\Start Menu\Programs')
+            self.current_path = self.default_start_menu_path
             self.refresh_program_list()
             
             # 获取主屏幕
@@ -361,7 +437,7 @@ class StartMenu(QWidget):
             
             # 计算菜单位置（在开始按钮正上方）
             x = button_pos.x()
-            y = primary_screen['y'] + primary_screen['height'] - self.height() - 40  # 40是任务栏高度
+            y = primary_screen['y'] + primary_screen['height'] - self.height() - self.taskbar.taskbar_height
             
             self.move(x, y)
             self.show()
@@ -385,6 +461,29 @@ class StartMenu(QWidget):
                 program_layout = QGridLayout(program_widget)
                 program_layout.setContentsMargins(0, 0, 0, 0)
                 program_layout.setSpacing(10)
+
+                # 添加UWP应用入口
+                uwp_button = QPushButton("UWP 应用")
+                uwp_button.setStyleSheet(
+                    "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+                    "QPushButton:hover {background-color: #505054;}"
+                )
+                uwp_button.clicked.connect(self.show_uwp_apps)
+                # 添加返回按钮
+                if self.current_path != os.path.expanduser('~'):
+                    back_button = QToolButton()
+                    back_button.setText('返回上级')
+                    back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
+                    back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+                    back_button.setStyleSheet(
+                        "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+                        "QToolButton:hover {background-color: #505054;}"
+                    )
+                    back_button.clicked.connect(self.go_back)
+                    program_layout.addWidget(back_button, 0, 0, 1, 3)
+                    program_layout.addWidget(uwp_button, 1, 0, 1, 3)
+                else:
+                    program_layout.addWidget(uwp_button, 2, 0, 1, 3)
                 
                 # 遍历当前目录
                 row = 0
@@ -411,26 +510,29 @@ class StartMenu(QWidget):
                 break
         
     def set_svg_icon(self, button, svg_content):
-        """设置SVG图标"""
-        # 创建QIcon
-        icon = QIcon()
-        
-        # 将SVG内容转换为字节流
-        svg_bytes = BytesIO(svg_content.encode('utf-8'))
-        
-        # 创建SVG渲染器
-        renderer = QSvgRenderer(svg_bytes.getvalue())
-        
-        # 创建图片
-        pixmap = QPixmap(32, 32)
-        pixmap.fill(Qt.transparent)
-        
-        # 创建画笔并渲染SVG
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-        
-        # 设置图标
-        icon = QIcon(pixmap)
-        button.setIcon(icon)
-        button.setIconSize(QSize(20, 20))
+        """设置SVG图标并保持高分辨率渲染"""
+        try:
+            # 将SVG内容转换为字节数据
+            svg_data = svg_content.encode('utf-8')
+            
+            # 创建SVG渲染器
+            renderer = QSvgRenderer(svg_data)
+            
+            # 创建适配设备像素比的pixmap
+            pixmap = QPixmap(32, 32)
+            pixmap.fill(Qt.transparent)
+            
+            # 高质量抗锯齿渲染
+            painter = QPainter(pixmap)
+            painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+            renderer.render(painter)
+            painter.end()
+            
+            # 创建图标并设置
+            icon = QIcon(pixmap)
+            button.setIcon(icon)
+            button.setIconSize(QSize(32, 32))
+        except Exception as e:
+            self.logger.error(f"SVG图标加载失败: {str(e)}")
+            # 回退到系统图标
+            button.setIcon(QFileIconProvider().icon(QFileIconProvider.File))
