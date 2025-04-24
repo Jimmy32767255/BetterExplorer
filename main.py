@@ -57,7 +57,7 @@ class BetterExplorer:
         self.desktop.set_taskbar(self.taskbar)
         
         # 初始化开始菜单
-        self.start_menu = StartMenu(self.display_manager)
+        self.start_menu = StartMenu(self.display_manager, self.taskbar)
         
         # 连接任务栏开始按钮和开始菜单
         for taskbar_info in self.taskbar.taskbar_widgets:

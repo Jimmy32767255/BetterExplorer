@@ -14,9 +14,10 @@ import ctypes
 import win32api
 import win32process
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QListWidget, QListWidgetItem)
+                             QListWidget, QListWidgetItem, QApplication)
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon, QPixmap
+from log import Logger
 
 
 class AltTabSwitcher(QWidget):
@@ -31,7 +32,6 @@ class AltTabSwitcher(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground)
         
         # 初始化日志记录器
-        from log import Logger
         self.logger = Logger()
         self.logger.info("Alt+Tab切换器初始化")
         
@@ -220,7 +220,6 @@ class AltTabSwitcher(QWidget):
         
     def center_on_screen(self):
         """将窗口居中显示"""
-        from PyQt5.QtWidgets import QApplication
         screen_geometry = QApplication.desktop().screenGeometry()
         x = (screen_geometry.width() - self.width()) // 2
         y = (screen_geometry.height() - self.height()) // 2

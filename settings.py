@@ -103,36 +103,12 @@ class Settings(QWidget):
         # 添加弹性空间
         ui_layout.addStretch(1)
         
-        # 添加按钮区域
-        button_layout = QHBoxLayout()
-        button_layout.setAlignment(Qt.AlignRight)
         
-        # 添加保存按钮
-        save_button = QPushButton("保存")
-        save_button.setFixedSize(80, 30)
-        save_button.setStyleSheet(
-            "QPushButton {background-color: #0078D7; color: white; border: none; border-radius: 3px;}"
-            "QPushButton:hover {background-color: #1C97EA;}"
-            "QPushButton:pressed {background-color: #00559B;}"
-        )
-        save_button.clicked.connect(self.save_settings)
-        button_layout.addWidget(save_button)
-        
-        # 添加取消按钮
-        cancel_button = QPushButton("取消")
-        cancel_button.setFixedSize(80, 30)
-        cancel_button.setStyleSheet(
-            "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px;}"
-            "QPushButton:hover {background-color: #505054;}"
-            "QPushButton:pressed {background-color: #0078D7;}"
-        )
-        cancel_button.clicked.connect(self.close)
-        button_layout.addWidget(cancel_button)
-        
-        ui_layout.addLayout(button_layout)
-        
-        # 将选项卡添加到选项卡部件
+        # 添加选项卡添加到选项卡部件
         tab_widget.addTab(ui_tab, "界面设置")
+        
+        # 添加按钮区域到主布局
+        main_layout.addWidget(tab_widget)
         
         # 创建系统设置选项卡
         system_tab = QWidget()

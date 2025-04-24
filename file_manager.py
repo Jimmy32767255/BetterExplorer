@@ -149,6 +149,10 @@ class FileManager(QMainWindow):
     
     def refresh(self):
         """刷新当前视图"""
+        # 强制刷新文件系统模型
+        self.model.setRootPath('')
+        self.model.setRootPath(QDir.rootPath())
+        self.list_view.reset()
         self.list_view.setRootIndex(self.model.index(self.current_path))
     
     def show_context_menu(self, position):
