@@ -405,6 +405,16 @@ class StartMenu(QWidget):
         self.logger.info("注销用户")
         os.system("shutdown /l")
     
+    def system_lock(self):
+        """锁定系统"""
+        self.logger.info("锁定系统")
+        os.system("rundll32.exe user32.dll,LockWorkStation")
+    
+    def system_sign_out(self):
+        """注销用户"""
+        self.logger.info("注销用户")
+        os.system("shutdown /l")
+    
     def go_back_in_start_menu(self):
         """在开始菜单程序列表中返回上一级目录"""
         parent_path = os.path.dirname(self.current_path)
