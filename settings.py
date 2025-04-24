@@ -74,7 +74,7 @@ class Settings(QWidget):
         taskbar_layout = QVBoxLayout(taskbar_group)
         
         # 添加开始按钮居中选项
-        self.center_start_button_checkbox = QCheckBox("开始按钮居中显示")
+        self.center_start_button_checkbox = QCheckBox("左侧按钮组居中显示")
         self.center_start_button_checkbox.setChecked(self.settings.get("center_start_button", False))
         self.center_start_button_checkbox.setStyleSheet(
             "QCheckBox {padding: 5px;}"
@@ -228,7 +228,7 @@ class Settings(QWidget):
             else:
                 # 默认设置
                 self.settings = {
-                    "center_start_button": False,
+                    "left_buttons_center": False,
                     "disable_system_explorer": False
                 }
                 self.logger.info("使用默认设置")
@@ -236,7 +236,7 @@ class Settings(QWidget):
             self.logger.error(f"加载设置时出错: {str(e)}")
             # 出错时使用默认设置
             self.settings = {
-                "center_start_button": False,
+                "left_buttons_center": False,
                 "disable_system_explorer": False,
                 "desktop_path": ""
             }

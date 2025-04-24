@@ -21,6 +21,7 @@ from log import Logger
 from uwp_app_menu import get_uwp_apps, launch_uwp_app
 from file_manager import FileManager
 from settings import Settings
+from search import SearchWindow
 
 class StartMenu(QWidget):
     """开始菜单类，提供开始菜单功能"""
@@ -45,6 +46,10 @@ class StartMenu(QWidget):
         self.current_path = self.default_start_menu_path
         
         # 初始化UI
+        # 创建搜索窗口实例
+        self.search_window = SearchWindow(self)
+        self.search_window.hide()
+        
         self.init_ui()
         
     def init_ui(self):
@@ -73,12 +78,49 @@ class StartMenu(QWidget):
         search_layout.addWidget(search_edit)
         main_layout.addLayout(search_layout)
         
+        # 连接搜索信号
+        search_edit.textChanged.connect(self.search_window.perform_search)
+        search_edit.focusInEvent = lambda e: self.search_window.show()
+        search_edit.focusOutEvent = lambda e: self.search_window.hide()
+        
         # 添加分隔线
         separator = QFrame()
         separator.setFrameShape(QFrame.HLine)
         separator.setFrameShadow(QFrame.Sunken)
         separator.setStyleSheet("background-color: #3F3F46;")
         main_layout.addWidget(separator)
+
+        # 添加顶部按钮区域 (返回和 UWP)
+        top_button_layout = QHBoxLayout()
+        top_button_layout.setSpacing(10)
+
+        # 添加返回按钮 (如果不在根目录)
+        if self.current_path != self.default_start_menu_path:
+            self.back_button = QToolButton()
+            self.back_button.setText('返回上级')
+            self.back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
+            self.back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            self.back_button.setStyleSheet(
+                "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+                "QToolButton:hover {background-color: #505054;}"
+            )
+            self.back_button.clicked.connect(self.go_back)
+            top_button_layout.addWidget(self.back_button)
+        else:
+            # 添加占位符以保持 UWP 按钮位置
+            top_button_layout.addStretch(1)
+
+        # 添加UWP应用入口按钮
+        self.uwp_button = QPushButton("UWP 应用")
+        self.uwp_button.setStyleSheet(
+            "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+            "QPushButton:hover {background-color: #505054;}"
+        )
+        self.uwp_button.clicked.connect(self.show_uwp_apps)
+        top_button_layout.addWidget(self.uwp_button)
+        top_button_layout.addStretch(1) # 添加弹性空间将按钮推向两侧
+
+        main_layout.addLayout(top_button_layout) # 将顶部按钮布局添加到主布局
         
         # 添加程序列表区域
         scroll_area = QScrollArea()
@@ -96,30 +138,7 @@ class StartMenu(QWidget):
         program_layout.setContentsMargins(0, 0, 0, 0)
         program_layout.setSpacing(10)
         
-        # 添加UWP应用入口
-        uwp_button = QPushButton("UWP 应用")
-        uwp_button.setStyleSheet(
-            "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-            "QPushButton:hover {background-color: #505054;}"
-        )
-        uwp_button.clicked.connect(self.show_uwp_apps)
-        # 添加返回按钮
-        if self.current_path != os.path.expanduser('~'):
-            back_button = QToolButton()
-            back_button.setText('返回上级')
-            back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
-            back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-            back_button.setStyleSheet(
-                "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                "QToolButton:hover {background-color: #505054;}"
-            )
-            back_button.clicked.connect(self.go_back)
-            program_layout.addWidget(back_button, 0, 0, 1, 3)
-            program_layout.addWidget(uwp_button, 1, 0, 1, 3)
-        else:
-            program_layout.addWidget(uwp_button, 2, 0, 1, 3)
-        
-        # 遍历当前目录
+        # 遍历当前目录 - 从第0行开始
         row = 0
         col = 0
         max_cols = 3
@@ -127,6 +146,10 @@ class StartMenu(QWidget):
         for item in os.listdir(self.current_path):
             item_path = os.path.join(self.current_path, item)
             name = os.path.splitext(item)[0]
+
+            # 跳过名为 "UWP 应用" 的项，因为它已在顶部按钮栏
+            if name == "UWP 应用":
+                continue
             
             # 判断是文件夹还是程序
             icon_type = "folder" if os.path.isdir(item_path) else "program"
@@ -467,35 +490,76 @@ class StartMenu(QWidget):
             if isinstance(widget, QScrollArea):
                 # 找到程序列表区域，重新创建内容
                 scroll_area = widget
+                
+                # 创建包含滚动区域和顶部按钮的新容器
+                content_widget = QWidget()
+                content_layout = QVBoxLayout(content_widget)
+                content_layout.setContentsMargins(0, 0, 0, 0)
+                content_layout.setSpacing(10)
+
+                # 添加顶部按钮区域 (返回和 UWP)
+                top_button_layout = QHBoxLayout()
+                top_button_layout.setSpacing(10)
+
+                # 添加返回按钮 (如果不在根目录)
+                if self.current_path != self.default_start_menu_path:
+                    self.back_button = QToolButton()
+                    self.back_button.setText('返回上级')
+                    self.back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
+                    self.back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+                    self.back_button.setStyleSheet(
+                        "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+                        "QToolButton:hover {background-color: #505054;}"
+                    )
+                    self.back_button.clicked.connect(self.go_back)
+                    top_button_layout.addWidget(self.back_button)
+                else:
+                     # 添加占位符以保持 UWP 按钮位置
+                    top_button_layout.addStretch(1)
+
+                # 添加UWP应用入口按钮
+                self.uwp_button = QPushButton("UWP 应用")
+                self.uwp_button.setStyleSheet(
+                    "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+                    "QPushButton:hover {background-color: #505054;}"
+                )
+                self.uwp_button.clicked.connect(self.show_uwp_apps)
+                top_button_layout.addWidget(self.uwp_button)
+                top_button_layout.addStretch(1) # 添加弹性空间将按钮推向两侧
+
+                content_layout.addLayout(top_button_layout) # 将顶部按钮布局添加到内容布局
+
+                # 创建新的程序列表网格
                 program_widget = QWidget()
                 program_layout = QGridLayout(program_widget)
                 program_layout.setContentsMargins(0, 0, 0, 0)
                 program_layout.setSpacing(10)
 
+                # 移除旧的按钮添加逻辑
                 # 添加UWP应用入口
-                uwp_button = QPushButton("UWP 应用")
-                uwp_button.setStyleSheet(
-                    "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                    "QPushButton:hover {background-color: #505054;}"
-                )
-                uwp_button.clicked.connect(self.show_uwp_apps)
-                # 添加返回按钮
-                if self.current_path != os.path.expanduser('~'):
-                    back_button = QToolButton()
-                    back_button.setText('返回上级')
-                    back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
-                    back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-                    back_button.setStyleSheet(
-                        "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                        "QToolButton:hover {background-color: #505054;}"
-                    )
-                    back_button.clicked.connect(self.go_back)
-                    program_layout.addWidget(back_button, 0, 0, 1, 3)
-                    program_layout.addWidget(uwp_button, 1, 0, 1, 3)
-                else:
-                    program_layout.addWidget(uwp_button, 2, 0, 1, 3)
+                # uwp_button = QPushButton("UWP 应用")
+                # uwp_button.setStyleSheet(
+                #     "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+                #     "QPushButton:hover {background-color: #505054;}"
+                # )
+                # uwp_button.clicked.connect(self.show_uwp_apps)
+                # # 添加返回按钮
+                # if self.current_path != os.path.expanduser('~'): # 应该比较 default_start_menu_path
+                #     back_button = QToolButton()
+                #     back_button.setText('返回上级')
+                #     back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
+                #     back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+                #     back_button.setStyleSheet(
+                #         "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+                #         "QToolButton:hover {background-color: #505054;}"
+                #     )
+                #     back_button.clicked.connect(self.go_back)
+                #     program_layout.addWidget(back_button, 0, 0, 1, 3)
+                #     program_layout.addWidget(uwp_button, 1, 0, 1, 3)
+                # else:
+                #     program_layout.addWidget(uwp_button, 0, 0, 1, 3) # UWP 按钮现在在顶部布局
                 
-                # 遍历当前目录
+                # 遍历当前目录 - 从第0行开始
                 row = 0
                 col = 0
                 max_cols = 3
@@ -503,6 +567,10 @@ class StartMenu(QWidget):
                 for item in os.listdir(self.current_path):
                     item_path = os.path.join(self.current_path, item)
                     name = os.path.splitext(item)[0]
+                    
+                    # 跳过名为 "UWP 应用" 的项，因为它已在顶部按钮栏
+                    if name == "UWP 应用":
+                        continue
                     
                     # 判断是文件夹还是程序
                     icon_type = "folder" if os.path.isdir(item_path) else "program"
@@ -516,8 +584,24 @@ class StartMenu(QWidget):
                         col = 0
                         row += 1
                 
-                scroll_area.setWidget(program_widget)
-                break
+                program_widget.setLayout(program_layout)
+                
+                # 创建新的滚动区域并设置其内容
+                new_scroll_area = QScrollArea()
+                new_scroll_area.setWidgetResizable(True)
+                new_scroll_area.setStyleSheet(
+                    "QScrollArea {border: none; background-color: transparent;}"
+                    "QScrollBar:vertical {background-color: #2D2D30; width: 10px;}"
+                    "QScrollBar::handle:vertical {background-color: #3E3E42; border-radius: 5px;}"
+                    "QScrollBar::handle:vertical:hover {background-color: #505054;}"
+                )
+                new_scroll_area.setWidget(program_widget)
+                
+                content_layout.addWidget(new_scroll_area) # 将滚动区域添加到内容布局
+                
+                # 替换旧的滚动区域的 widget
+                scroll_area.setWidget(content_widget)
+                break # 找到并处理完滚动区域后退出循环
         
     def set_svg_icon(self, button, svg_content):
         """设置SVG图标并保持高分辨率渲染"""

@@ -17,6 +17,8 @@ from PyQt5.QtCore import (Qt, QTimer, QSize, QRect, QPropertyAnimation,
 from PyQt5.QtGui import QIcon, QFont, QPixmap, QCursor
 from log import Logger
 from settings import Settings
+from volume import VolumeControl # 导入音量控件
+from network import NetworkStatus # 导入网络状态控件
 
 
 class TaskBar(QWidget):
@@ -83,21 +85,30 @@ class TaskBar(QWidget):
             # 添加开始按钮
             start_button = QPushButton("开始")
             start_button.setFixedSize(60, 30)
-            start_button.setStyleSheet(
-                "QPushButton {background-color: #0078D7; color: white; border: none; border-radius: 3px;}"
-                "QPushButton:hover {background-color: #1C97EA;}"
-                "QPushButton:pressed {background-color: #00559B;}"
-            )
-            start_button.clicked.connect(self.show_start_menu)
             
-            # 根据设置决定开始按钮是否居中
+            # 创建搜索按钮
+            search_button = QPushButton()
+            search_button.setObjectName("searchButton") # 设置对象名
+            search_button.setFixedSize(32, 32)
+            search_button.setStyleSheet(
+                "QPushButton {background-color: transparent; border: none;}"
+                "QPushButton:hover {background-color: #3E3E42; border-radius: 3px;}"
+                "QPushButton:pressed {background-color: #0078D7;}"
+            )
+            search_button.setIcon(QIcon("icons/search.svg"))
+            
+            # 创建水平布局容器
+            left_buttons_layout = QHBoxLayout()
+            left_buttons_layout.addWidget(start_button)
+            left_buttons_layout.addWidget(search_button)
+            left_buttons_layout.setSpacing(5)
+            
             if self.center_start_button:
-                # 使用QSpacerItem实现居中布局
                 layout.addStretch(1)
-                layout.addWidget(start_button)
+                layout.addLayout(left_buttons_layout)
                 layout.addStretch(1)
             else:
-                layout.addWidget(start_button)
+                layout.addLayout(left_buttons_layout)
             
             # 添加任务栏应用按钮区域
             app_area = QWidget()
@@ -114,6 +125,14 @@ class TaskBar(QWidget):
             tray_layout.setSpacing(5)
             tray_layout.setAlignment(Qt.AlignRight)
             layout.addWidget(tray_area)
+
+            # 添加网络状态控件
+            network_status_widget = NetworkStatus()
+            tray_layout.addWidget(network_status_widget)
+
+            # 添加音量控制控件
+            volume_control_widget = VolumeControl()
+            tray_layout.addWidget(volume_control_widget)
             
             # 添加时间显示
             time_label = QLabel()
@@ -155,7 +174,9 @@ class TaskBar(QWidget):
                 'app_layout': app_layout,
                 'tray_area': tray_area,
                 'time_label': time_label,
-                'screen': screen
+                'screen': screen,
+                'volume_control': volume_control_widget, # 保存音量控件引用
+                'network_status': network_status_widget # 保存网络状态控件引用
             })
             
             # 保存动画和定时器
@@ -354,9 +375,11 @@ class TaskBar(QWidget):
                     "QToolButton:hover {background-color: #505054; border-radius: 3px;}"
                 )
                 
-                taskbar_info['tray_area'].layout().insertWidget(
-                    0, tray_button
-                )
+                # 将按钮插入到时间标签之前
+                tray_layout = taskbar_info['tray_area'].layout()
+                time_label_index = tray_layout.indexOf(taskbar_info['time_label'])
+                tray_layout.insertWidget(time_label_index, tray_button)
+                
                 # 确保按钮可见
                 tray_button.show()
                 break
