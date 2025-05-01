@@ -8,7 +8,7 @@ BetterExplorer - 搜索模块
 
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLineEdit, QListWidget,
                              QListWidgetItem, QLabel, QHBoxLayout)
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSignal # Added pyqtSignal
 from PyQt5.QtGui import QIcon, QFont
 import os
 from log import Logger
@@ -16,6 +16,7 @@ from settings import Settings # 导入 Settings
 
 class SearchWindow(QWidget):
     """搜索主界面类"""
+    closed_signal = pyqtSignal() # Add a signal to notify when closed
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -109,9 +110,6 @@ class SearchWindow(QWidget):
                 except Exception as e:
                     self.logger.error(f"搜索开始菜单 '{path}' 时出错: {e}")
 
-        # TODO: 实现设置搜索
-        # TODO: 提取并显示更合适的图标
-
     def open_item(self, item):
         """双击打开选中的项目"""
         item_data = item.data(Qt.UserRole)
@@ -121,8 +119,18 @@ class SearchWindow(QWidget):
             self.logger.info(f"尝试打开 {item_type}: {item_path}")
             try:
                 os.startfile(item_path)
-                self.close() # 打开后关闭搜索窗口
+                # self.close() # 打开后关闭搜索窗口 - Removed, closeEvent will handle signal
+                # Instead of closing directly, let the OS handle the focus shift.
+                # The window might close itself or the user might close it.
+                # We rely on closeEvent to signal completion.
+                pass # Keep the window open briefly
             except Exception as e:
                 self.logger.error(f"打开 {item_path} 时出错: {e}")
         else:
             self.logger.warning("无法获取项目路径信息")
+
+    def closeEvent(self, event):
+        """Handle the window close event."""
+        self.logger.debug("Search window closing, emitting closed_signal.")
+        self.closed_signal.emit()
+        super().closeEvent(event)
