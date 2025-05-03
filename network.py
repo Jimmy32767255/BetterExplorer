@@ -9,12 +9,28 @@ BetterExplorer - 网络状态模块
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QLabel
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QToolButton
+import os
 
-class NetworkStatus(QWidget):
+class NetworkStatus(QToolButton):
     """网络状态控件"""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.init_ui()
+        self.setFixedSize(24, 24)
+        self.setStyleSheet(
+            "QToolButton {background-color: transparent; border: none;}"
+            "QToolButton:hover {background-color: #505054; border-radius: 3px;}"
+        )
+        # 设置网络状态图标
+        self.set_icon("icons/network.svg")
+        
+    def set_icon(self, icon_path):
+        """设置网络状态图标"""
+        if os.path.exists(icon_path):
+            self.setIcon(QIcon(icon_path))
+        else:
+            # 如果图标不存在，使用默认图标
+            self.setIcon(QIcon.fromTheme("network-wired"))
         self.update_timer = QTimer(self)
         self.update_timer.timeout.connect(self.update_network_status)
         self.update_timer.start(5000) # 每5秒更新一次

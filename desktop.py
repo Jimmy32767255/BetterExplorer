@@ -320,6 +320,14 @@ class Desktop(QMainWindow):
             file_name = os.path.basename(self.clipboard_file)
             target_path = os.path.join(self.desktop_path, file_name)
 
+            # 检查是否存在同名文件
+            counter = 1
+            while os.path.exists(target_path):
+                # 如果存在同名文件，在文件名后添加"-复制"和序号
+                name, ext = os.path.splitext(file_name)
+                target_path = os.path.join(self.desktop_path, f"{name}-复制{counter}{ext}")
+                counter += 1
+
             if self.clipboard_action == "copy":
                 if os.path.isdir(self.clipboard_file):
                     shutil.copytree(self.clipboard_file, target_path)

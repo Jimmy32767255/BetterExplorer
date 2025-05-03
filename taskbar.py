@@ -19,6 +19,7 @@ from log import Logger
 from settings import Settings
 from volume import VolumeControl # 导入音量控件
 from network import NetworkStatus # 导入网络状态控件
+from PyQt5.QtWidgets import QMessageBox
 
 
 class TaskBar(QWidget):
@@ -128,10 +129,12 @@ class TaskBar(QWidget):
 
             # 添加网络状态控件
             network_status_widget = NetworkStatus()
+            network_status_widget.clicked.connect(self.handle_network_click)
             tray_layout.addWidget(network_status_widget)
 
             # 添加音量控制控件
             volume_control_widget = VolumeControl()
+            volume_control_widget.clicked.connect(self.handle_volume_click)  # 添加点击事件处理
             tray_layout.addWidget(volume_control_widget)
             
             # 添加时间显示
@@ -404,3 +407,19 @@ class TaskBar(QWidget):
             button_pos = button.mapToGlobal(button.rect().topLeft())
             # 这个方法会在main.py中被连接到StartMenu的toggle_visibility方法
             # 实际的菜单显示逻辑在StartMenu类中实现
+
+    def handle_network_click(self):
+        """处理网络按钮点击事件"""
+        self.logger.info("网络按钮被点击")
+        # 创建网络设置窗口
+        from network_settings import NetworkSettingsWindow
+        self.network_settings = NetworkSettingsWindow()
+        self.network_settings.show()
+
+    def handle_volume_click(self):
+        """处理音量按钮点击事件"""
+        self.logger.info("音量按钮被点击")
+        # 创建音量控制窗口
+        from volume_control import VolumeControlWindow
+        self.volume_control = VolumeControlWindow()
+        self.volume_control.show()
