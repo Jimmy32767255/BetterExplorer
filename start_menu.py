@@ -10,7 +10,7 @@ import os
 import sys
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
                              QLineEdit, QScrollArea, QFrame, QGridLayout, 
-                             QToolButton, QSizePolicy, QMenu, QAction)
+                             QToolButton, QSizePolicy, QMenu, QAction, QApplication) # Added QApplication
 from PyQt5.QtCore import Qt, QSize, QRect, QPoint
 from PyQt5.QtGui import QIcon, QFont, QPixmap, QPainter, QCursor
 from PyQt5.QtSvg import QSvgRenderer
@@ -49,6 +49,7 @@ class StartMenu(QWidget):
         # 创建搜索窗口实例
         self.search_window = SearchWindow(self)
         self.search_window.hide()
+        self.search_window.closed_signal.connect(self.handle_search_window_closed) # Connect the signal
         
         self.init_ui()
         
@@ -80,8 +81,10 @@ class StartMenu(QWidget):
         
         # 连接搜索信号
         search_edit.textChanged.connect(self.search_window.perform_search)
-        search_edit.focusInEvent = lambda e: self.search_window.show()
-        search_edit.focusOutEvent = lambda e: self.search_window.hide()
+        # search_edit.focusInEvent = lambda e: self.search_window.show() # Original
+        # search_edit.focusOutEvent = lambda e: self.search_window.hide() # Original
+        search_edit.focusInEvent = lambda e, le=search_edit: self.handle_search_focus_in(le, e)
+        search_edit.focusOutEvent = lambda e, le=search_edit: self.handle_search_focus_out(le, e)
         
         # 添加分隔线
         separator = QFrame()
@@ -481,6 +484,63 @@ class StartMenu(QWidget):
         """处理隐藏事件"""
         self.is_visible = False
         super().hideEvent(event)
+
+    def find_program_list_scroll_area(self):
+        """Helper function to find the QScrollArea containing the program list."""
+        # Iterate through main layout items to find the QScrollArea
+        if self.layout(): # Ensure layout exists
+            for i in range(self.layout().count()):
+                item = self.layout().itemAt(i)
+                if item:
+                    widget = item.widget()
+                    if isinstance(widget, QScrollArea):
+                        # Heuristic: Assume the first QScrollArea found in the main layout is the program list
+                        return widget
+        return None
+
+    def handle_search_focus_in(self, line_edit, event):
+        """Handle focus in event for the search edit."""
+        scroll_area = self.find_program_list_scroll_area()
+        if scroll_area:
+            scroll_area.hide()
+            self.logger.debug("Program list scroll area hidden.")
+        else:
+            self.logger.warning("Could not find program list scroll area to hide.")
+        self.search_window.show()
+        # Call original focusInEvent if needed, though QLineEdit's default is likely fine
+        QLineEdit.focusInEvent(line_edit, event)
+
+
+    def handle_search_focus_out(self, line_edit, event):
+        """Handle focus out event for the search edit."""
+        # Check if focus is moving to the search window itself or one of its children
+        focused_widget = QApplication.focusWidget()
+        if focused_widget and (focused_widget == self.search_window or self.search_window.isAncestorOf(focused_widget)):
+             self.logger.debug("Focus moved to search window, not hiding list yet.")
+             QLineEdit.focusOutEvent(line_edit, event) # Let default handler run
+             return # Don't hide search window or show list yet
+
+        self.logger.debug("Search edit lost focus to something other than search window.")
+        self.search_window.hide()
+        scroll_area = self.find_program_list_scroll_area()
+        if scroll_area:
+            scroll_area.show()
+            self.logger.debug("Program list scroll area shown.")
+        else:
+             self.logger.warning("Could not find program list scroll area to show.")
+        # Call original focusOutEvent if needed
+        QLineEdit.focusOutEvent(line_edit, event)
+
+    def handle_search_window_closed(self):
+        """Handle the search window being closed explicitly."""
+        self.logger.debug("Search window closed signal received.")
+        scroll_area = self.find_program_list_scroll_area()
+        if scroll_area and not scroll_area.isVisible():
+            scroll_area.show()
+            self.logger.debug("Program list scroll area shown due to search window close.")
+        # Ensure focus returns to the start menu or taskbar appropriately
+        # This might need more sophisticated focus management depending on desired UX
+        self.activateWindow() # Try to bring focus back to start menu
     
     def refresh_program_list(self):
         """刷新程序列表"""
@@ -517,17 +577,9 @@ class StartMenu(QWidget):
                      # 添加占位符以保持 UWP 按钮位置
                     top_button_layout.addStretch(1)
 
-                # 添加UWP应用入口按钮
-                self.uwp_button = QPushButton("UWP 应用")
-                self.uwp_button.setStyleSheet(
-                    "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                    "QPushButton:hover {background-color: #505054;}"
-                )
-                self.uwp_button.clicked.connect(self.show_uwp_apps)
-                top_button_layout.addWidget(self.uwp_button)
                 top_button_layout.addStretch(1) # 添加弹性空间将按钮推向两侧
 
-                content_layout.addLayout(top_button_layout) # 将顶部按钮布局添加到内容布局
+                content_layout.addLayout(top_button_layout)  # 将顶部按钮布局添加到内容布局
 
                 # 创建新的程序列表网格
                 program_widget = QWidget()
