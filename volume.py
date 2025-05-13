@@ -9,6 +9,8 @@ BetterExplorer - 音量控制模块
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QLabel, QSlider
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QToolButton
+import os
 
 class VolumeControl(QWidget):
     """音量控制控件"""
@@ -62,3 +64,23 @@ class VolumeControl(QWidget):
         """检查是否静音"""
         # TODO: 实现跨平台的静音状态检查逻辑
         return False # 示例值
+
+
+class VolumeControl(QToolButton):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(24, 24)
+        self.setStyleSheet(
+            "QToolButton {background-color: transparent; border: none;}"
+            "QToolButton:hover {background-color: #505054; border-radius: 3px;}"
+        )
+        # 设置音量图标
+        self.set_icon("icons/volume.svg")
+        
+    def set_icon(self, icon_path):
+        """设置音量图标"""
+        if os.path.exists(icon_path):
+            self.setIcon(QIcon(icon_path))
+        else:
+            # 如果图标不存在，使用默认图标
+            self.setIcon(QIcon.fromTheme("audio-volume-medium"))

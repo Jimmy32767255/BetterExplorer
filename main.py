@@ -59,9 +59,12 @@ class BetterExplorer:
         
         # 初始化开始菜单
         self.start_menu = StartMenu(self.display_manager, self.taskbar)
+<<<<<<< HEAD
 
         # 初始化搜索窗口
         self.search_window = SearchWindow()
+=======
+>>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
         
         # 连接任务栏开始按钮和开始菜单
         for taskbar_info in self.taskbar.taskbar_widgets:
