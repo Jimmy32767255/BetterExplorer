@@ -8,9 +8,9 @@ BetterExplorer - 开始菜单模块
 
 import os
 import sys
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
-                             QLineEdit, QScrollArea, QFrame, QGridLayout, 
-                             QToolButton, QMenu, QAction, QApplication)
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
+                             QScrollArea, QFrame, QGridLayout,
+                             QToolButton, QMenu, QAction, QApplication, QStackedLayout)
 from PyQt5.QtCore import Qt, QSize, QPoint
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QCursor
 from PyQt5.QtSvg import QSvgRenderer
@@ -48,10 +48,8 @@ class StartMenu(QWidget):
         self.is_showing_uwp_apps = False # 新增状态变量，表示当前是否正在显示UWP应用
         
         # 初始化UI
-        # 创建搜索窗口实例
-        self.search_window = SearchWindow(self)
-        self.search_window.hide()
-        self.search_window.closed_signal.connect(self.handle_search_window_closed)
+        # 创建搜索组件实例
+        self.search_widget = SearchWindow(self)
         
         # 初始化 UWP 应用获取器
         self.uwp_app_fetcher = UWPAppFetcher()
@@ -75,23 +73,10 @@ class StartMenu(QWidget):
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(10)
         
-        # 添加搜索框
-        search_layout = QHBoxLayout()
-        search_edit = QLineEdit()
-        search_edit.setPlaceholderText("搜索应用、设置和文档")
-        search_edit.setStyleSheet(
-            "QLineEdit {background-color: #3E3E42; border: 1px solid #555555; border-radius: 3px; padding: 8px;}"
-            "QLineEdit:focus {border: 1px solid #0078D7;}"
-        )
-        search_layout.addWidget(search_edit)
-        main_layout.addLayout(search_layout)
-        
-        # 连接搜索信号
-        search_edit.textChanged.connect(self.search_window.perform_search)
-        # search_edit.focusInEvent = lambda e: self.search_window.show() # Original
-        # search_edit.focusOutEvent = lambda e: self.search_window.hide() # Original
-        search_edit.focusInEvent = lambda e, le=search_edit: self.handle_search_focus_in(le, e)
-        search_edit.focusOutEvent = lambda e, le=search_edit: self.handle_search_focus_out(le, e)
+        # 添加搜索组件到主布局
+        main_layout.addWidget(self.search_widget)
+        # 设置搜索组件的占位符文本
+        self.search_widget.search_input.setPlaceholderText("搜索应用、文件和设置")
         
         # 添加分隔线
         separator = QFrame()
@@ -130,7 +115,8 @@ class StartMenu(QWidget):
         top_button_layout.addWidget(self.uwp_button)
 
         top_button_layout.addStretch(1)
-        main_layout.addLayout(top_button_layout)
+        self.top_button_layout = top_button_layout # 保存引用
+        main_layout.addLayout(self.top_button_layout)
 
         # 创建程序列表容器
         self.program_widget = QWidget()
@@ -150,44 +136,23 @@ class StartMenu(QWidget):
         )
         
         self.scroll_area.setWidget(self.program_widget)
-        main_layout.addWidget(self.scroll_area)
-
-        # 从当前目录读取程序列表
-        row = 0
-        col = 0
-        max_cols = 5 # Consistent with UWP app display
-
-        try:
-            items = os.listdir(self.current_path)
-        except FileNotFoundError:
-            self.logger.warning(f"开始菜单路径不存在或无法访问: {self.current_path}")
-            items = []
-        except PermissionError:
-            self.logger.warning(f"没有权限访问开始菜单路径: {self.current_path}")
-            items = []
-
-        for item in items:
-            item_path = os.path.join(self.current_path, item)
-            name = os.path.splitext(item)[0]
-
-            # 跳过名为 "UWP 应用" 的项，因为它已在顶部按钮栏
-            if name == "UWP 应用":
-                continue
-            
-            # 判断是文件夹还是程序
-            icon_type = "folder" if os.path.isdir(item_path) else "program"
-            
-            # 添加按钮
-            self.add_program_button(self.program_layout, row, col, name, icon_type, item_path)
-            col += 1
-            if col >= max_cols:
-                col = 0
-                row += 1
-
-
         
-        self.scroll_area.setWidget(self.program_widget)
-        main_layout.addWidget(self.scroll_area, 1)  # 占据大部分空间
+        # 创建一个堆叠布局来管理程序列表和搜索结果列表
+        self.stacked_layout = QStackedLayout()
+        self.stacked_layout.addWidget(self.scroll_area) # 索引 0: 程序列表
+        self.stacked_layout.addWidget(self.search_widget.result_list) # 索引 1: 搜索结果列表
+        
+        main_layout.addLayout(self.stacked_layout, 1) # 占据大部分空间
+        
+        # 默认显示程序列表
+        self.stacked_layout.setCurrentIndex(0)
+
+        # 连接搜索组件的输入框焦点事件
+        self.search_widget.search_input.textChanged.connect(self.search_widget.perform_search)
+        self.search_widget.search_input.focusInEvent = lambda e, le=self.search_widget.search_input: self.handle_search_focus_in(le, e)
+        self.search_widget.search_input.focusOutEvent = lambda e, le=self.search_widget.search_input: self.handle_search_focus_out(le, e)
+
+
         
         # 添加底部区域
         bottom_layout = QHBoxLayout()
@@ -271,7 +236,8 @@ class StartMenu(QWidget):
         bottom_layout.addLayout(user_layout)
         bottom_layout.addLayout(button_layout)
         
-        main_layout.addLayout(bottom_layout)
+        self.bottom_layout = bottom_layout # 保存引用以便后续操作
+        main_layout.addLayout(self.bottom_layout)
     
     def add_program_button(self, layout, row, col, name, icon_type, item_path):
         """添加程序按钮到网格布局"""
@@ -464,6 +430,28 @@ class StartMenu(QWidget):
         
         # 点击后隐藏开始菜单
         self.hide()
+
+    def show_and_focus_search(self):
+        """显示开始菜单并让搜索框获得焦点"""
+        self.logger.info("显示开始菜单并让搜索框获得焦点")
+        # 如果开始菜单没有显示，则显示它
+        if not self.isVisible():
+            # 获取任务栏的位置信息，以便将开始菜单显示在正确的位置
+            # 这里需要根据实际任务栏的位置来调整，例如，如果任务栏在底部
+            # 则开始菜单应该从屏幕底部向上弹出
+            screen_rect = QApplication.desktop().screenGeometry()
+            taskbar_height = self.taskbar.height() if self.taskbar else 0
+            # 计算开始菜单的显示位置
+            x = 0 # 假设从屏幕左侧开始
+            y = screen_rect.height() - taskbar_height - self.height() # 菜单在任务栏上方
+            self.move(x, y)
+            self.show()
+            self.is_visible = True
+        
+        # 确保搜索组件的输入框获得焦点
+        self.search_widget.search_input.setFocus()
+        # 模拟搜索框获得焦点事件，以触发隐藏其他元素和显示搜索结果列表的逻辑
+        self.handle_search_focus_in(self.search_widget.search_input, None) # None for event as it's simulated
     
     def show_power_menu(self):
         """显示电源菜单"""
@@ -581,57 +569,50 @@ class StartMenu(QWidget):
         self.is_visible = False
         super().hideEvent(event)
 
-    def handle_search_focus_in(self, line_edit, event):
-        """Handle focus in event for the search edit."""
-        scroll_area = self.find_program_list_scroll_area()
-        if scroll_area:
-            scroll_area.hide()
-            self.logger.debug("Program list scroll area hidden.")
-        else:
-            self.logger.warning("Could not find program list scroll area to hide.")
-        self.search_window.show()
-        # Call original focusInEvent if needed, though QLineEdit's default is likely fine
-        QLineEdit.focusInEvent(line_edit, event)
 
-    def handle_search_focus_out(self, line_edit, event):
-        """Handle focus out event for the search edit."""
-        # Check if focus is moving to the search window itself or one of its children
-        focused_widget = QApplication.focusWidget()
-        if focused_widget and (focused_widget == self.search_window or self.search_window.isAncestorOf(focused_widget)):
-             self.logger.debug("Focus moved to search window, not hiding list yet.")
-             QLineEdit.focusOutEvent(line_edit, event) # Let default handler run
-             return # Don't hide search window or show list yet
 
-        self.logger.debug("Search edit lost focus to something other than search window.")
-        self.search_window.hide()
-        scroll_area = self.find_program_list_scroll_area()
-        if scroll_area:
-            scroll_area.show()
-            self.logger.debug("Program list scroll area shown.")
-        else:
-             self.logger.warning("Could not find program list scroll area to show.")
-        # Call original focusOutEvent if needed
-        QLineEdit.focusOutEvent(line_edit, event)
-
-    def handle_search_window_closed(self):
-        """Handle the search window being closed explicitly."""
-        self.logger.debug("Search window closed signal received.")
-        scroll_area = self.find_program_list_scroll_area()
-        if scroll_area and not scroll_area.isVisible():
-            scroll_area.show()
-            self.logger.debug("Program list scroll area shown due to search window close.")
-        # Ensure focus returns to the start menu or taskbar appropriately
-        # This might need more sophisticated focus management depending on desired UX
-        self.activateWindow() # Try to bring focus back to start menu
 
     def find_program_list_scroll_area(self):
-        """查找并返回程序列表的 QScrollArea 实例"""
-        # 遍历主布局中的所有 widget，找到 QScrollArea
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QScrollArea):
-                return widget
-        return None
+        """查找程序列表的滚动区域"""
+        # 假设滚动区域是 main_layout 的第二个部件
+        # 这是一个比较脆弱的方法，如果布局结构改变，可能需要调整
+        # 更好的方法是在 init_ui 中保存 scroll_area 的引用
+        return self.scroll_area
+
+    def handle_search_focus_in(self, search_edit, event):
+        """处理搜索框获得焦点事件"""
+        self.logger.debug("搜索框获得焦点")
+        # 隐藏开始菜单的其他部分
+        for i in range(self.bottom_layout.count()):
+            widget = self.bottom_layout.itemAt(i).widget()
+            if widget:
+                widget.setVisible(False)
+        for i in range(self.top_button_layout.count()):
+            widget = self.top_button_layout.itemAt(i).widget()
+            if widget:
+                widget.setVisible(False)
+        # 显示搜索结果列表
+        self.stacked_layout.setCurrentIndex(1)
+        # 确保搜索组件的输入框获得焦点
+        search_edit.setFocus()
+        event.accept()
+
+    def handle_search_focus_out(self, search_edit, event):
+        """处理搜索框失去焦点事件"""
+        # 检查焦点是否转移到搜索组件内部
+        if not self.search_widget.geometry().contains(QCursor.pos()):
+            # 隐藏搜索结果列表，显示程序列表
+            self.stacked_layout.setCurrentIndex(0)
+            # 恢复开始菜单的其他部分
+            for i in range(self.bottom_layout.count()):
+                widget = self.bottom_layout.itemAt(i).widget()
+                if widget:
+                    widget.setVisible(True)
+            for i in range(self.top_button_layout.count()):
+                widget = self.top_button_layout.itemAt(i).widget()
+                if widget:
+                    widget.setVisible(True)
+        event.accept()
     
     def refresh_program_list(self):
         """刷新程序列表"""
@@ -683,6 +664,9 @@ class StartMenu(QWidget):
             if col >= max_cols:
                 col = 0
                 row += 1
+        
+        # 确保显示程序列表
+        self.stacked_layout.setCurrentIndex(0)
         
     def set_svg_icon(self, button, svg_content):
         """设置SVG图标并保持高分辨率渲染"""

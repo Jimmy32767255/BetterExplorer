@@ -18,7 +18,7 @@ from settings import Settings # 导入 Settings
 
 class SearchWindow(QWidget):
     """搜索主界面类"""
-    closed_signal = pyqtSignal() # Add a signal to notify when closed
+
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -27,8 +27,6 @@ class SearchWindow(QWidget):
 
     def init_ui(self):
         """初始化搜索界面"""
-        self.setWindowTitle("搜索")
-        self.setFixedSize(775, 730)
         self.setStyleSheet(
             "background-color: #2D2D30; color: white; border: 1px solid #3F3F46;"
         )
@@ -130,9 +128,3 @@ class SearchWindow(QWidget):
                 self.logger.error(f"打开 {item_path} 时出错: {e}")
         else:
             self.logger.warning("无法获取项目路径信息")
-
-    def closeEvent(self, event):
-        """Handle the window close event."""
-        self.logger.debug("Search window closing, emitting closed_signal.")
-        self.closed_signal.emit()
-        super().closeEvent(event)

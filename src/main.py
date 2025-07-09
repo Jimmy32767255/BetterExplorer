@@ -61,8 +61,7 @@ class BetterExplorer:
         # 初始化开始菜单
         self.start_menu = StartMenu(self.display_manager, self.taskbar)
 
-        # 初始化搜索窗口
-        self.search_window = SearchWindow()
+
         
         # 连接任务栏开始按钮和开始菜单
         for taskbar_info in self.taskbar.taskbar_widgets:
@@ -74,7 +73,7 @@ class BetterExplorer:
             # 连接搜索按钮
             search_button = taskbar_info['widget'].findChild(QPushButton, 'searchButton')
             if search_button:
-                search_button.clicked.connect(self.search_window.show)
+                search_button.clicked.connect(lambda: self.start_menu.show_and_focus_search())
         
         # 连接任务栏的通知方法到桌面的调整大小方法
         self.taskbar.notify_desktop_resize = self.desktop.adjust_desktop_size
