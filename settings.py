@@ -8,11 +8,10 @@ BetterExplorer - 设置模块
 
 import os
 import json
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QPushButton, QCheckBox, QTabWidget, QFrame,
-                             QScrollArea, QGroupBox, QMessageBox, QApplication, QLineEdit)
-from PyQt5.QtCore import Qt, QSettings, QSize
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, 
+                             QPushButton, QCheckBox, QTabWidget,
+                             QGroupBox, QMessageBox, QApplication, QLineEdit)
+from PyQt5.QtCore import Qt
 from log import Logger
 
 

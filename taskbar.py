@@ -10,16 +10,15 @@ import os
 import time
 from datetime import datetime
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QLabel, QPushButton, 
-                             QMenu, QAction, QSystemTrayIcon, QToolButton,
-                             QVBoxLayout, QFrame, QSizePolicy)
-from PyQt5.QtCore import (Qt, QTimer, QSize, QRect, QPropertyAnimation,
+                             QSystemTrayIcon, QToolButton,
+                             QSizePolicy)
+from PyQt5.QtCore import (Qt, QTimer, QRect, QPropertyAnimation,
                           QPoint, QEvent, QEasingCurve)
-from PyQt5.QtGui import QIcon, QFont, QPixmap, QCursor
+from PyQt5.QtGui import QIcon, QCursor
 from log import Logger
 from settings import Settings
 from volume import VolumeControl # 导入音量控件
 from network import NetworkStatus # 导入网络状态控件
-from PyQt5.QtWidgets import QMessageBox
 
 
 class TaskBar(QWidget):

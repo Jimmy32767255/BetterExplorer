@@ -9,7 +9,6 @@ BetterExplorer - 快捷键管理模块
 import sys
 import psutil
 from PyQt5.QtWidgets import QApplication, QShortcut
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 
 class HotkeyManager:

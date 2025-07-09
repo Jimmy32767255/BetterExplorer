@@ -10,12 +10,11 @@ import os
 import shutil
 import psutil
 import subprocess
-from PyQt5.QtWidgets import (QMainWindow, QTreeView, QListView, QFileSystemModel,
-                             QVBoxLayout, QHBoxLayout, QWidget, QToolBar, 
-                             QAction, QMenu, QInputDialog, QMessageBox, QFileDialog,
+from PyQt5.QtWidgets import (QMainWindow, QListView, QFileSystemModel,
+                             QVBoxLayout, QWidget, QToolBar, 
+                             QAction, QMenu, QInputDialog, QMessageBox,
                              QComboBox)
 from PyQt5.QtCore import Qt, QDir
-from PyQt5.QtGui import QIcon
 from log import Logger
 
 

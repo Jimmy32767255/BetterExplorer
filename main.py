@@ -7,10 +7,8 @@ BetterExplorer - 一个增强型文件资源管理器
 """
 
 import sys
-import os
 import signal
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QPushButton # 导入 QPushButton
 from desktop import Desktop
 from file_manager import FileManager
@@ -59,12 +57,9 @@ class BetterExplorer:
         
         # 初始化开始菜单
         self.start_menu = StartMenu(self.display_manager, self.taskbar)
-<<<<<<< HEAD
 
         # 初始化搜索窗口
         self.search_window = SearchWindow()
-=======
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
         
         # 连接任务栏开始按钮和开始菜单
         for taskbar_info in self.taskbar.taskbar_widgets:
@@ -215,4 +210,3 @@ if __name__ == "__main__":
     # 创建并运行应用程序
     explorer = BetterExplorer()
     sys.exit(explorer.run())
-# 删除文件末尾多余的代码

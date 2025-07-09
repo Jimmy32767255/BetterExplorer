@@ -7,9 +7,9 @@ BetterExplorer - 搜索模块
 """
 
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLineEdit, QListWidget,
-                             QListWidgetItem, QLabel, QHBoxLayout)
-from PyQt5.QtCore import Qt, QSize, pyqtSignal # Added pyqtSignal
-from PyQt5.QtGui import QIcon, QFont
+                             QListWidgetItem)
+from PyQt5.QtCore import Qt, pyqtSignal # Added pyqtSignal
+from PyQt5.QtGui import QIcon
 import os
 from log import Logger
 from settings import Settings # 导入 Settings

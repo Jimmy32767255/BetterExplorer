@@ -13,10 +13,10 @@ import win32gui
 import ctypes
 import win32api
 import win32process
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, 
                              QListWidget, QListWidgetItem, QApplication)
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
 from log import Logger
 
 

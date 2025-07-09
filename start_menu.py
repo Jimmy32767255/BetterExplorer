@@ -10,21 +10,17 @@ import os
 import sys
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
                              QLineEdit, QScrollArea, QFrame, QGridLayout, 
-                             QToolButton, QSizePolicy, QMenu, QAction, QApplication) # Added QApplication
-from PyQt5.QtCore import Qt, QSize, QRect, QPoint
-from PyQt5.QtGui import QIcon, QFont, QPixmap, QPainter, QCursor
+                             QToolButton, QMenu, QAction, QApplication)
+from PyQt5.QtCore import Qt, QSize, QPoint
+from PyQt5.QtGui import QIcon, QPixmap, QPainter, QCursor
 from PyQt5.QtSvg import QSvgRenderer
-from io import BytesIO
 from icons import file_manager_icon, settings_icon, power_icon
 from PyQt5.QtWidgets import QFileIconProvider
 from log import Logger
 from uwp_app_menu import get_uwp_apps, launch_uwp_app
-<<<<<<< HEAD
 from file_manager import FileManager
 from settings import Settings
 from search import SearchWindow
-=======
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
 
 class StartMenu(QWidget):
     """开始菜单类，提供开始菜单功能"""
@@ -144,10 +140,6 @@ class StartMenu(QWidget):
         program_layout.setContentsMargins(0, 0, 0, 0)
         program_layout.setSpacing(10)
         
-<<<<<<< HEAD
-        # 遍历当前目录 - 从第0行开始
-        row = 0
-=======
         # 添加UWP应用入口
         uwp_button = QPushButton("UWP 应用")
         uwp_button.setStyleSheet(
@@ -172,7 +164,6 @@ class StartMenu(QWidget):
         
         # 从当前目录读取程序列表
         row = 1 # UWP按钮占用了第0行
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
         col = 0
         max_cols = 3
         
@@ -484,7 +475,6 @@ class StartMenu(QWidget):
         self.logger.info("注销用户")
         os.system("shutdown /l")
     
-<<<<<<< HEAD
     def system_lock(self):
         """锁定系统"""
         self.logger.info("锁定系统")
@@ -495,8 +485,6 @@ class StartMenu(QWidget):
         self.logger.info("注销用户")
         os.system("shutdown /l")
     
-=======
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
     def go_back_in_start_menu(self):
         """在开始菜单程序列表中返回上一级目录"""
         parent_path = os.path.dirname(self.current_path)
@@ -643,31 +631,6 @@ class StartMenu(QWidget):
                 program_layout.setContentsMargins(0, 0, 0, 0)
                 program_layout.setSpacing(10)
 
-<<<<<<< HEAD
-                # 移除旧的按钮添加逻辑
-                # 添加UWP应用入口
-                # uwp_button = QPushButton("UWP 应用")
-                # uwp_button.setStyleSheet(
-                #     "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                #     "QPushButton:hover {background-color: #505054;}"
-                # )
-                # uwp_button.clicked.connect(self.show_uwp_apps)
-                # # 添加返回按钮
-                # if self.current_path != os.path.expanduser('~'): # 应该比较 default_start_menu_path
-                #     back_button = QToolButton()
-                #     back_button.setText('返回上级')
-                #     back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
-                #     back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-                #     back_button.setStyleSheet(
-                #         "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                #         "QToolButton:hover {background-color: #505054;}"
-                #     )
-                #     back_button.clicked.connect(self.go_back)
-                #     program_layout.addWidget(back_button, 0, 0, 1, 3)
-                #     program_layout.addWidget(uwp_button, 1, 0, 1, 3)
-                # else:
-                #     program_layout.addWidget(uwp_button, 0, 0, 1, 3) # UWP 按钮现在在顶部布局
-=======
                 # 添加UWP应用入口
                 uwp_button = QPushButton("UWP 应用")
                 uwp_button.setStyleSheet(
@@ -689,7 +652,6 @@ class StartMenu(QWidget):
                     program_layout.addWidget(back_button, 0, 0, 1, 3)
                 else:
                     program_layout.addWidget(uwp_button, 0, 0, 1, 3)
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
                 
                 # 遍历当前目录 - 从第0行开始
                 row = 0

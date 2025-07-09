@@ -8,7 +8,6 @@ BetterExplorer - 显示器管理模块
 
 import sys
 from PyQt5.QtWidgets import QApplication, QDesktopWidget
-from PyQt5.QtCore import QRect
 from log import Logger
 
 

@@ -1,6 +1,5 @@
 import subprocess
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QComboBox, QCheckBox, QMessageBox
-from PyQt5.QtCore import Qt
 
 class NetworkSettingsWindow(QWidget):
     def __init__(self):

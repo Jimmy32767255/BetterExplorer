@@ -8,11 +8,11 @@ BetterExplorer - 桌面管理模块
 
 import os
 import shutil
-from PyQt5.QtWidgets import (QMainWindow, QDesktopWidget, QVBoxLayout, 
-                             QWidget, QLabel, QMenu, QAction, QFileDialog,
+from PyQt5.QtWidgets import (QMainWindow, QVBoxLayout, 
+                             QWidget, QMenu, QAction, QFileDialog,
                              QListView, QMessageBox, QInputDialog)
-from PyQt5.QtCore import Qt, QSize, QPoint, QRect, QDir
-from PyQt5.QtGui import QIcon, QPixmap, QCursor
+from PyQt5.QtCore import Qt, QSize, QRect, QDir
+from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QFileSystemModel
 from log import Logger
 from settings import Settings
@@ -120,11 +120,7 @@ class Desktop(QMainWindow):
             
         # 使用QListView的itemAt方法获取当前位置的项
         item = view.indexAt(position)
-<<<<<<< HEAD
         file_path = view.model().filePath(item) if item.isValid() else None if item.isValid() else None
-=======
-        file_path = view.model().filePath(item) if item.isValid() else None
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
         
         context_menu = QMenu()
         
@@ -154,10 +150,7 @@ class Desktop(QMainWindow):
             context_menu.addAction(paste_action)
             context_menu.addAction(delete_action)
             context_menu.addAction(rename_action)
-<<<<<<< HEAD
-=======
             context_menu.exec_(QCursor.pos())
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
         else:
             # 空白处右键菜单
             new_folder_action = QAction("新建文件夹", self)
@@ -169,14 +162,6 @@ class Desktop(QMainWindow):
             open_file_manager_action = QAction("打开文件管理器", self)
             open_file_manager_action.triggered.connect(self.open_file_manager)
             
-<<<<<<< HEAD
-            context_menu.addAction(new_folder_action)
-            context_menu.addAction(refresh_action)
-            context_menu.addAction(open_file_manager_action)
-        
-        # 显示菜单
-        context_menu.exec_(QCursor.pos())
-=======
             paste_action = QAction("粘贴", self)
             paste_action.triggered.connect(self.paste_file)
             
@@ -186,7 +171,6 @@ class Desktop(QMainWindow):
             context_menu.addAction(paste_action)
             paste_action.setEnabled(hasattr(self, 'clipboard_file') and self.clipboard_file is not None)
             context_menu.exec_(QCursor.pos())
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
     
     def create_new_folder(self):
         """创建新文件夹"""
@@ -289,10 +273,7 @@ class Desktop(QMainWindow):
         """打开文件或文件夹"""
         if os.path.isdir(file_path):
             # 创建文件管理器实例并打开目标路径
-<<<<<<< HEAD
             from file_manager import FileManager
-=======
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
             file_manager = FileManager()
             file_manager.navigate_to(file_path)
             file_manager.show()
@@ -322,19 +303,6 @@ class Desktop(QMainWindow):
 
     def rename_file(self, file_path):
         """重命名文件"""
-<<<<<<< HEAD
-        old_name = os.path.basename(file_path)
-        new_name, ok = QInputDialog.getText(self, "重命名", "新名称:", text=old_name)
-        if ok and new_name:
-            try:
-                new_path = os.path.join(os.path.dirname(file_path), new_name)
-                os.rename(file_path, new_path)
-                self.refresh_desktop()
-                self.logger.info(f"重命名成功: {old_name} -> {new_name}")
-            except Exception as e:
-                self.logger.error(f"重命名失败: {str(e)}")
-                QMessageBox.warning(self, "错误", f"重命名失败: {str(e)}")
-=======
         if not os.path.exists(file_path):
             QMessageBox.warning(self, "错误", "文件不存在")
             return
@@ -375,7 +343,6 @@ class Desktop(QMainWindow):
             except Exception as e:
                 self.logger.error(f"重命名失败: {str(e)}")
                 QMessageBox.warning(self, "错误", f"发生未知错误: {str(e)}")
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
 
     def paste_file(self):
         """粘贴剪贴板中的文件"""
@@ -384,7 +351,6 @@ class Desktop(QMainWindow):
 
         try:
             file_name = os.path.basename(self.clipboard_file)
-<<<<<<< HEAD
             target_path = os.path.join(self.desktop_path, file_name)
 
             # 检查是否存在同名文件
@@ -395,10 +361,6 @@ class Desktop(QMainWindow):
                 target_path = os.path.join(self.desktop_path, f"{name}-复制{counter}{ext}")
                 counter += 1
 
-=======
-            target_path = os.path.join(self.desktop_path, file_name)  # 确保使用桌面路径
-            
->>>>>>> b6aa1cef4b07c987a09a7404362a857f9184a96d
             if self.clipboard_action == "copy":
                 if os.path.isdir(self.clipboard_file):
                     shutil.copytree(self.clipboard_file, target_path)

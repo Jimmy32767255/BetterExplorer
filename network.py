@@ -6,8 +6,8 @@ BetterExplorer - 网络状态模块
 负责在任务栏显示网络连接状态
 """
 
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QLabel
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtWidgets import QHBoxLayout, QPushButton
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QToolButton
 import os
