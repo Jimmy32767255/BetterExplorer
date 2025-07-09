@@ -21,7 +21,6 @@ class RunDialog:
         """显示运行对话框"""
         text, ok = QInputDialog.getText(None, '运行', '输入命令或路径:')
         if ok and text:
-            # 这里可以添加执行命令的逻辑
             logger.info(f"执行命令: {text}")
             return text
         return None
