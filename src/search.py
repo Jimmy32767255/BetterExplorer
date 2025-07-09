@@ -28,7 +28,7 @@ class SearchWindow(QWidget):
     def init_ui(self):
         """初始化搜索界面"""
         self.setWindowTitle("搜索")
-        self.setFixedSize(400, 500)
+        self.setFixedSize(775, 730)
         self.setStyleSheet(
             "background-color: #2D2D30; color: white; border: 1px solid #3F3F46;"
         )

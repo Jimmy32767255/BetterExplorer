@@ -14,12 +14,12 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBut
 from PyQt5.QtCore import Qt, QSize, QPoint
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QCursor
 from PyQt5.QtSvg import QSvgRenderer
-from icons import file_manager_icon, settings_icon, power_icon
+from icons import file_manager_icon, settings_icon, power_icon, back_icon, uwp_icon
 from PyQt5.QtWidgets import QFileIconProvider
 from log import get_logger
 
 logger = get_logger()
-from uwp_app_menu import get_uwp_apps, launch_uwp_app
+from uwp_app_menu import UWPAppFetcher, launch_uwp_app
 from file_manager import FileManager
 from settings import Settings
 from search import SearchWindow
@@ -50,14 +50,19 @@ class StartMenu(QWidget):
         # 创建搜索窗口实例
         self.search_window = SearchWindow(self)
         self.search_window.hide()
-        self.search_window.closed_signal.connect(self.handle_search_window_closed) # Connect the signal
+        self.search_window.closed_signal.connect(self.handle_search_window_closed)
         
+        # 初始化 UWP 应用获取器
+        self.uwp_app_fetcher = UWPAppFetcher()
+        self.uwp_app_fetcher.finished.connect(self.on_uwp_apps_fetched)
+        self.uwp_app_fetcher.error.connect(self.on_uwp_apps_error)
+
         self.init_ui()
         
     def init_ui(self):
         """初始化用户界面"""
         # 设置菜单大小
-        self.setFixedSize(400, 500)
+        self.setFixedSize(775, 730)
         
         # 设置菜单样式
         self.setStyleSheet(
@@ -102,7 +107,7 @@ class StartMenu(QWidget):
         if self.current_path != self.default_start_menu_path:
             self.back_button = QToolButton()
             self.back_button.setText('返回上级')
-            self.back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
+            self.back_button.setIcon(QIcon(back_icon))
             self.back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
             self.back_button.setStyleSheet(
                 "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
@@ -110,78 +115,46 @@ class StartMenu(QWidget):
             )
             self.back_button.clicked.connect(self.go_back)
             top_button_layout.addWidget(self.back_button)
-        else:
-            # 添加占位符以保持 UWP 按钮位置
-            top_button_layout.addStretch(1)
-
-        # 添加UWP应用入口按钮
-        self.uwp_button = QPushButton("UWP 应用")
+        
+        # 添加 UWP 应用入口按钮
+        self.uwp_button = QToolButton()
+        self.uwp_button.setText('UWP 应用')
+        self.uwp_button.setIcon(QIcon(uwp_icon))
+        self.uwp_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.uwp_button.setStyleSheet(
-            "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-            "QPushButton:hover {background-color: #505054;}"
+            "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+            "QToolButton:hover {background-color: #505054;}"
         )
         self.uwp_button.clicked.connect(self.show_uwp_apps)
         top_button_layout.addWidget(self.uwp_button)
-        top_button_layout.addStretch(1) # 添加弹性空间将按钮推向两侧
 
-        main_layout.addLayout(top_button_layout) # 将顶部按钮布局添加到主布局
+        top_button_layout.addStretch(1)
+        main_layout.addLayout(top_button_layout)
+
+        # 创建程序列表容器
+        self.program_widget = QWidget()
+
+        self.program_layout = QGridLayout(self.program_widget)
+        self.program_layout.setContentsMargins(0, 0, 0, 0)
+        self.program_layout.setSpacing(10)
         
         # 添加程序列表区域
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setStyleSheet(
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setStyleSheet(
             "QScrollArea {border: none; background-color: transparent;}"
             "QScrollBar:vertical {background-color: #2D2D30; width: 10px;}"
             "QScrollBar::handle:vertical {background-color: #3E3E42; border-radius: 5px;}"
             "QScrollBar::handle:vertical:hover {background-color: #505054;}"
         )
         
-        # 创建程序列表容器
-        program_widget = QWidget()
-        program_layout = QGridLayout(program_widget)
-        program_layout.setContentsMargins(0, 0, 0, 0)
-        program_layout.setSpacing(10)
-        
-        # 添加UWP应用入口
-        uwp_button = QPushButton("UWP 应用")
-        uwp_button.setStyleSheet(
-            "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-            "QPushButton:hover {background-color: #505054;}"
-        )
-        uwp_button.clicked.connect(self.show_uwp_apps)
-        # 添加返回按钮
-        if self.current_path != os.path.expanduser('~'):
-            back_button = QToolButton()
-            back_button.setText('返回上级')
-            back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
-            back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-            back_button.setStyleSheet(
-                "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                "QToolButton:hover {background-color: #505054;}"
-            )
-            back_button.clicked.connect(self.go_back)
-            program_layout.addWidget(back_button, 0, 0, 1, 3)
-        if self.current_path == os.path.expanduser('~'):
-            program_layout.addWidget(uwp_button, 0, 0, 1, 3)
-        
+        self.scroll_area.setWidget(self.program_widget)
+        main_layout.addWidget(self.scroll_area)
+
         # 从当前目录读取程序列表
-        row = 1 # UWP按钮占用了第0行
+        row = 0
         col = 0
-        max_cols = 3
-        
-        # 检查是否需要添加返回按钮(虽然初始化时通常不需要，但保持逻辑一致性)
-        if self.current_path != self.default_start_menu_path:
-            back_button = QPushButton("返回上一级")
-            back_button.setStyleSheet(
-                "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                "QPushButton:hover {background-color: #505054;}"
-            )
-            back_button.clicked.connect(self.go_back_in_start_menu)
-            # 将返回按钮放在UWP按钮之前
-            program_layout.addWidget(back_button, 0, 0, 1, 3)
-            # UWP按钮向下移动一行
-            program_layout.addWidget(uwp_button, 1, 0, 1, 3)
-            row = 2 # 程序列表从第二行开始
+        max_cols = 5 # Consistent with UWP app display
 
         try:
             items = os.listdir(self.current_path)
@@ -204,16 +177,16 @@ class StartMenu(QWidget):
             icon_type = "folder" if os.path.isdir(item_path) else "program"
             
             # 添加按钮
-            self.add_program_button(program_layout, row, col, name, icon_type, item_path)
-            
-            # 更新行列位置
+            self.add_program_button(self.program_layout, row, col, name, icon_type, item_path)
             col += 1
             if col >= max_cols:
                 col = 0
                 row += 1
+
+
         
-        scroll_area.setWidget(program_widget)
-        main_layout.addWidget(scroll_area, 1)  # 占据大部分空间
+        self.scroll_area.setWidget(self.program_widget)
+        main_layout.addWidget(self.scroll_area, 1)  # 占据大部分空间
         
         # 添加底部区域
         bottom_layout = QHBoxLayout()
@@ -331,20 +304,101 @@ class StartMenu(QWidget):
     
     def show_uwp_apps(self):
         """显示UWP应用列表"""
-        apps = get_uwp_apps()
-        menu = QMenu(self)
-        menu.setStyleSheet(
-            "QMenu {background-color: #2D2D30; color: white; border: 1px solid #3F3F46;}"
-            "QMenu::item {padding: 5px 20px;}"
-            "QMenu::item:selected {background-color: #3E3E42;}"
-        )
+        self.logger.info("开始获取UWP应用列表...")
+        # 启动异步获取
+        self.uwp_app_fetcher.start()
+        # 暂时禁用UWP按钮，防止重复点击
+        self.uwp_button.setEnabled(False)
+        self.uwp_button.setText("正在加载UWP应用...")
+
+    def on_uwp_apps_fetched(self, apps):
+        """处理UWP应用列表获取完成"""
+        self.logger.info(f"成功获取到 {len(apps)} 个UWP应用。")
+        self.uwp_button.setEnabled(True)
+        self.uwp_button.setText("UWP 应用")
         
+        # 确保滚动区域存在
+        if not self.scroll_area:
+            self.scroll_area = QScrollArea()
+            self.scroll_area.setWidgetResizable(True)
+            self.scroll_area.setStyleSheet(
+                "QScrollArea {border: none; background-color: transparent;}"
+                "QScrollBar:vertical {background-color: #2D2D30; width: 10px;}"
+                "QScrollBar::handle:vertical {background-color: #3E3E42; border-radius: 5px;}"
+                "QScrollBar::handle:vertical:hover {background-color: #505054;}"
+            )
+            
+        # 清除现有程序列表
+        self.clear_program_buttons()
+        
+        # 强制重新创建 program_widget 和 program_layout 以确保正确初始化
+        self.program_widget = QWidget()
+        self.program_layout = QGridLayout(self.program_widget)
+        self.program_layout.setContentsMargins(0, 0, 0, 0)
+        self.program_layout.setSpacing(10)
+        
+        # 将新的 program_widget 设置到滚动区域中
+        self.scroll_area.setWidget(self.program_widget)
+        
+        self.logger.info(f"UWP应用程序列表布局已重新初始化")
+        
+        # 将UWP应用添加到程序列表
+        self.add_uwp_apps_to_program_list(apps)
+
+    def clear_program_buttons(self):
+        """清除所有程序按钮"""
+        # 直接使用 self.program_layout 清除按钮
+        if self.program_layout:
+            while self.program_layout.count():
+                item = self.program_layout.takeAt(0)
+                if item.widget():
+                    item.widget().deleteLater()
+
+    def on_uwp_apps_error(self, error_message):
+        """处理UWP应用列表获取错误"""
+        self.logger.error(f"获取UWP应用失败: {error_message}")
+        self.uwp_button.setEnabled(True)
+        self.uwp_button.setText("UWP 应用 (加载失败)")
+
+    def add_uwp_apps_to_program_list(self, apps):
+        """将UWP应用添加到程序列表"""
+        # 直接使用 self.program_layout
+        if self.program_layout is None:
+            self.logger.error("程序列表布局未初始化。")
+            return
+        
+        self.logger.info(f"开始添加 {len(apps)} 个UWP应用到程序列表")
+
+        # 初始化行和列
+        row = 0
+        col = 0
+        max_cols = 5  # 每行显示5个应用
+
         for app in apps:
-            action = QAction(app['name'], self)
-            action.triggered.connect(lambda checked, a=app: launch_uwp_app(a['appid']))
-            menu.addAction(action)
+            # 为每个UWP应用创建一个按钮
+            button = QToolButton()
+            button.setText(app['name'] + ' (UWP)')
+            button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+            button.setFixedSize(100, 80)
+            # TODO: 为UWP应用设置图标，可能需要额外的逻辑来获取UWP应用的图标
+            # button.setIcon(QIcon("path/to/uwp_icon.png"))
+            button.setStyleSheet(
+                "QToolButton {background-color: transparent; color: white; border: none; text-align: center;}"
+                "QToolButton:hover {background-color: #3E3E42; border-radius: 5px;}"
+                "QToolButton:pressed {background-color: #0078D7;}"
+            )
+            button.setProperty('is_uwp_app', True)
+            button.clicked.connect(lambda checked, app_id=app['appid']: launch_uwp_app(app_id))
+
+            self.program_layout.addWidget(button, row, col)
+
+            col += 1
+            if col >= max_cols:
+                col = 0
+                row += 1
         
-        menu.exec_(QCursor.pos())
+        # 刷新布局以显示新添加的按钮
+        self.program_layout.update()
 
     def go_back(self):
         """返回上级目录"""
@@ -365,21 +419,13 @@ class StartMenu(QWidget):
         
         # 根据程序名称执行不同操作
         if program_name == "文件管理器":
-            # 导入并创建文件管理器实例
-            
             file_manager = FileManager()
             file_manager.show()
-            
-            # 保存文件管理器实例，防止被垃圾回收
-            self.file_manager_instance = file_manager
+            self.file_manager_instance = file_manager # 防止被垃圾回收
         elif program_name == "设置":
-            # 导入并创建设置实例
-            
             settings_window = Settings()
             settings_window.show()
-            
-            # 保存设置实例，防止被垃圾回收
-            self.settings_instance = settings_window
+            self.settings_instance = settings_window # 防止被垃圾回收
         else:
             # 处理其他程序
             try:
@@ -396,11 +442,7 @@ class StartMenu(QWidget):
     def show_power_menu(self):
         """显示电源菜单"""
         power_menu = QMenu(self)
-        power_menu.setStyleSheet(
-            "QMenu {background-color: #2D2D30; color: white; border: 1px solid #3F3F46;}"
-            "QMenu::item {padding: 5px 20px;}"
-            "QMenu::item:selected {background-color: #3E3E42;}"
-        )
+        power_menu.setStyleSheet("QMenu {background-color: #2D2D30; color: white; border: 1px solid #3F3F46;}QMenu::item {padding: 5px 20px;}QMenu::item:selected {background-color: #3E3E42;}")
         
         # 添加电源选项
         sleep_action = QAction("睡眠", self)
@@ -446,11 +488,7 @@ class StartMenu(QWidget):
     def show_user_menu(self, pos):
         """显示用户上下文菜单"""
         user_menu = QMenu(self)
-        user_menu.setStyleSheet(
-            "QMenu {background-color: #2D2D30; color: white; border: 1px solid #3F3F46;}"
-            "QMenu::item {padding: 5px 20px;}"
-            "QMenu::item:selected {background-color: #3E3E42;}"
-        )
+        user_menu.setStyleSheet("QMenu {background-color: #2D2D30; color: white; border: 1px solid #3F3F46;}QMenu::item {padding: 5px 20px;}QMenu::item:selected {background-color: #3E3E42;}")
         
         # 添加菜单选项
         lock_action = QAction("锁定", self)
@@ -467,26 +505,6 @@ class StartMenu(QWidget):
         # 显示菜单
         user_menu.exec_(self.mapToGlobal(pos))
     
-    def system_lock(self):
-        """锁定系统"""
-        self.logger.info("锁定系统")
-        os.system("rundll32.exe user32.dll,LockWorkStation")
-    
-    def system_sign_out(self):
-        """注销用户"""
-        self.logger.info("注销用户")
-        os.system("shutdown /l")
-    
-    def system_lock(self):
-        """锁定系统"""
-        self.logger.info("锁定系统")
-        os.system("rundll32.exe user32.dll,LockWorkStation")
-    
-    def system_sign_out(self):
-        """注销用户"""
-        self.logger.info("注销用户")
-        os.system("shutdown /l")
-    
     def go_back_in_start_menu(self):
         """在开始菜单程序列表中返回上一级目录"""
         parent_path = os.path.dirname(self.current_path)
@@ -494,11 +512,6 @@ class StartMenu(QWidget):
         if parent_path and parent_path != self.current_path and parent_path.startswith(self.default_start_menu_path):
             self.current_path = parent_path
             self.logger.debug(f"返回到文件夹: {self.current_path}")
-            self.refresh_program_list()
-        elif parent_path == self.default_start_menu_path:
-             # 如果父路径就是默认路径，也允许返回
-            self.current_path = parent_path
-            self.logger.debug(f"返回到顶层文件夹: {self.current_path}")
             self.refresh_program_list()
         else:
             self.logger.warning(f"无法返回上一级，当前路径: {self.current_path}, 父路径: {parent_path}")
@@ -531,19 +544,6 @@ class StartMenu(QWidget):
         self.is_visible = False
         super().hideEvent(event)
 
-    def find_program_list_scroll_area(self):
-        """Helper function to find the QScrollArea containing the program list."""
-        # Iterate through main layout items to find the QScrollArea
-        if self.layout(): # Ensure layout exists
-            for i in range(self.layout().count()):
-                item = self.layout().itemAt(i)
-                if item:
-                    widget = item.widget()
-                    if isinstance(widget, QScrollArea):
-                        # Heuristic: Assume the first QScrollArea found in the main layout is the program list
-                        return widget
-        return None
-
     def handle_search_focus_in(self, line_edit, event):
         """Handle focus in event for the search edit."""
         scroll_area = self.find_program_list_scroll_area()
@@ -555,7 +555,6 @@ class StartMenu(QWidget):
         self.search_window.show()
         # Call original focusInEvent if needed, though QLineEdit's default is likely fine
         QLineEdit.focusInEvent(line_edit, event)
-
 
     def handle_search_focus_out(self, line_edit, event):
         """Handle focus out event for the search edit."""
@@ -587,117 +586,60 @@ class StartMenu(QWidget):
         # Ensure focus returns to the start menu or taskbar appropriately
         # This might need more sophisticated focus management depending on desired UX
         self.activateWindow() # Try to bring focus back to start menu
+
+    def find_program_list_scroll_area(self):
+        """查找并返回程序列表的 QScrollArea 实例"""
+        # 遍历主布局中的所有 widget，找到 QScrollArea
+        for i in range(self.layout().count()):
+            widget = self.layout().itemAt(i).widget()
+            if isinstance(widget, QScrollArea):
+                return widget
+        return None
     
     def refresh_program_list(self):
         """刷新程序列表"""
         # 清除旧的程序列表
-        for i in reversed(range(self.layout().count())):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QScrollArea):
-                # 找到程序列表区域，重新创建内容
-                scroll_area = widget
-                
-                # 创建包含滚动区域和顶部按钮的新容器
-                content_widget = QWidget()
-                content_layout = QVBoxLayout(content_widget)
-                content_layout.setContentsMargins(0, 0, 0, 0)
-                content_layout.setSpacing(10)
+        self.clear_program_buttons()
 
-                # 添加顶部按钮区域 (返回和 UWP)
-                top_button_layout = QHBoxLayout()
-                top_button_layout.setSpacing(10)
+        # 确保 program_layout 已初始化
+        if not self.program_layout:
+            self.program_widget = QWidget()
+            self.program_layout = QGridLayout(self.program_widget)
+            self.program_widget.setLayout(self.program_layout)
+            self.program_layout.setContentsMargins(0, 0, 0, 0)
+            self.program_layout.setSpacing(10)
+            
+            # 找到程序列表区域，并设置其内容
+            scroll_area = self.find_program_list_scroll_area()
+            if scroll_area:
+                scroll_area.setWidget(self.program_widget)
+            else:
+                self.logger.error("未找到程序列表滚动区域。")
 
-                # 添加返回按钮 (如果不在根目录)
-                if self.current_path != self.default_start_menu_path:
-                    self.back_button = QToolButton()
-                    self.back_button.setText('返回上级')
-                    self.back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
-                    self.back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-                    self.back_button.setStyleSheet(
-                        "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                        "QToolButton:hover {background-color: #505054;}"
-                    )
-                    self.back_button.clicked.connect(self.go_back)
-                    top_button_layout.addWidget(self.back_button)
-                else:
-                     # 添加占位符以保持 UWP 按钮位置
-                    top_button_layout.addStretch(1)
+        # 遍历当前目录
+        row = 0
+        col = 0
+        max_cols = 5 # Consistent with UWP app display
 
-                top_button_layout.addStretch(1) # 添加弹性空间将按钮推向两侧
-
-                content_layout.addLayout(top_button_layout)  # 将顶部按钮布局添加到内容布局
-
-                # 创建新的程序列表网格
-                program_widget = QWidget()
-                program_layout = QGridLayout(program_widget)
-                program_layout.setContentsMargins(0, 0, 0, 0)
-                program_layout.setSpacing(10)
-
-                # 添加UWP应用入口
-                uwp_button = QPushButton("UWP 应用")
-                uwp_button.setStyleSheet(
-                    "QPushButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                    "QPushButton:hover {background-color: #505054;}"
-                )
-                uwp_button.clicked.connect(self.show_uwp_apps)
-                # 添加返回按钮
-                if self.current_path != os.path.expanduser('~'):
-                    back_button = QToolButton()
-                    back_button.setText('返回上级')
-                    back_button.setIcon(QIcon(os.path.join(os.path.dirname(__file__), 'icons', 'back.svg')))
-                    back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-                    back_button.setStyleSheet(
-                        "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                        "QToolButton:hover {background-color: #505054;}"
-                    )
-                    back_button.clicked.connect(self.go_back)
-                    program_layout.addWidget(back_button, 0, 0, 1, 3)
-                else:
-                    program_layout.addWidget(uwp_button, 0, 0, 1, 3)
-                
-                # 遍历当前目录 - 从第0行开始
-                row = 0
+        for item in os.listdir(self.current_path):
+            item_path = os.path.join(self.current_path, item)
+            name = os.path.splitext(item)[0]
+            
+            # 跳过名为 "UWP 应用" 的项，因为它已在顶部按钮栏
+            if name == "UWP 应用":
+                continue
+            
+            # 判断是文件夹还是程序
+            icon_type = "folder" if os.path.isdir(item_path) else "program"
+            
+            # 添加按钮
+            self.add_program_button(self.program_layout, row, col, name, icon_type, item_path)
+            
+            # 更新行列位置
+            col += 1
+            if col >= max_cols:
                 col = 0
-                max_cols = 3
-                
-                for item in os.listdir(self.current_path):
-                    item_path = os.path.join(self.current_path, item)
-                    name = os.path.splitext(item)[0]
-                    
-                    # 跳过名为 "UWP 应用" 的项，因为它已在顶部按钮栏
-                    if name == "UWP 应用":
-                        continue
-                    
-                    # 判断是文件夹还是程序
-                    icon_type = "folder" if os.path.isdir(item_path) else "program"
-                    
-                    # 添加按钮
-                    self.add_program_button(program_layout, row, col, name, icon_type, item_path)
-                    
-                    # 更新行列位置
-                    col += 1
-                    if col >= max_cols:
-                        col = 0
-                        row += 1
-                
-                program_widget.setLayout(program_layout)
-                
-                # 创建新的滚动区域并设置其内容
-                new_scroll_area = QScrollArea()
-                new_scroll_area.setWidgetResizable(True)
-                new_scroll_area.setStyleSheet(
-                    "QScrollArea {border: none; background-color: transparent;}"
-                    "QScrollBar:vertical {background-color: #2D2D30; width: 10px;}"
-                    "QScrollBar::handle:vertical {background-color: #3E3E42; border-radius: 5px;}"
-                    "QScrollBar::handle:vertical:hover {background-color: #505054;}"
-                )
-                new_scroll_area.setWidget(program_widget)
-                
-                content_layout.addWidget(new_scroll_area) # 将滚动区域添加到内容布局
-                
-                # 替换旧的滚动区域的 widget
-                scroll_area.setWidget(content_widget)
-                break # 找到并处理完滚动区域后退出循环
+                row += 1
         
     def set_svg_icon(self, button, svg_content):
         """设置SVG图标并保持高分辨率渲染"""

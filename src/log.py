@@ -13,7 +13,7 @@ import sys
 # 配置日志
 log_dir = os.path.join(os.getcwd(), 'logs')
 os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, 'app.log')
+log_file = os.path.join(log_dir, 'log.txt')
 
 # 移除默认的handler
 logger.remove()
@@ -22,7 +22,7 @@ logger.remove()
 logger.add(
     log_file,
     rotation="1 MB",  # 日志文件达到1MB时轮转
-    retention="5 days", # 最多保留5天的日志文件
+    retention="7 days", # 最多保留5天的日志文件
     compression="zip",  # 压缩旧的日志文件
     encoding='utf-8',   # 设置编码
     level="DEBUG"       # 设置日志级别

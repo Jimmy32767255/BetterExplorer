@@ -25,3 +25,17 @@ power_icon = '''
   <line x1="12" y1="2" x2="12" y2="12"/>
 </svg>
 '''
+
+back_icon = '''
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="15 18 9 12 15 6"/>
+</svg>
+'''
+
+uwp_icon = '''
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"/>
+  <path d="M9 12l3 3 3-3"/>
+  <path d="M12 15V9"/>
+</svg>
+'''
