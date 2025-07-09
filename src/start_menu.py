@@ -45,6 +45,7 @@ class StartMenu(QWidget):
         self.default_start_menu_path = os.path.join(os.environ.get('ProgramData', 'C:\ProgramData'),
                                                   'Microsoft\Windows\Start Menu\Programs')
         self.current_path = self.default_start_menu_path
+        self.is_showing_uwp_apps = False # 新增状态变量，表示当前是否正在显示UWP应用
         
         # 初始化UI
         # 创建搜索窗口实例
@@ -103,18 +104,18 @@ class StartMenu(QWidget):
         top_button_layout = QHBoxLayout()
         top_button_layout.setSpacing(10)
 
-        # 添加返回按钮 (如果不在根目录)
-        if self.current_path != self.default_start_menu_path:
-            self.back_button = QToolButton()
-            self.back_button.setText('返回上级')
-            self.back_button.setIcon(QIcon(back_icon))
-            self.back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-            self.back_button.setStyleSheet(
-                "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
-                "QToolButton:hover {background-color: #505054;}"
-            )
-            self.back_button.clicked.connect(self.go_back)
-            top_button_layout.addWidget(self.back_button)
+        # 创建返回按钮 (不立即添加到布局)
+        self.back_button = QToolButton()
+        self.back_button.setText('返回上级')
+        self.back_button.setIcon(QIcon(back_icon))
+        self.back_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.back_button.setStyleSheet(
+            "QToolButton {background-color: #3E3E42; color: white; border: none; border-radius: 3px; padding: 8px;}"
+            "QToolButton:hover {background-color: #505054;}"
+        )
+        self.back_button.clicked.connect(self.go_back)
+        top_button_layout.addWidget(self.back_button)
+        self.back_button.setVisible(False)
         
         # 添加 UWP 应用入口按钮
         self.uwp_button = QToolButton()
@@ -216,7 +217,12 @@ class StartMenu(QWidget):
         user_avatar.customContextMenuRequested.connect(self.show_user_menu)
         user_name.setContextMenuPolicy(Qt.CustomContextMenu)
         user_name.customContextMenuRequested.connect(self.show_user_menu)
-        
+        # 添加用户上下文菜单
+        user_menu = QMenu(self)
+        lock_action = QAction("锁定", self)
+        sign_out_action = QAction("注销", self)
+        user_menu.addAction(lock_action)
+        user_menu.addAction(sign_out_action)
         user_layout.addWidget(user_avatar)
         user_layout.addWidget(user_name)
         user_layout.addStretch()
@@ -303,19 +309,34 @@ class StartMenu(QWidget):
         return button
     
     def show_uwp_apps(self):
-        """显示UWP应用列表"""
-        self.logger.info("开始获取UWP应用列表...")
-        # 启动异步获取
-        self.uwp_app_fetcher.start()
-        # 暂时禁用UWP按钮，防止重复点击
-        self.uwp_button.setEnabled(False)
-        self.uwp_button.setText("正在加载UWP应用...")
+        """显示UWP应用列表或返回普通开始菜单"""
+        if self.is_showing_uwp_apps:
+            # 如果当前正在显示UWP应用，则返回普通开始菜单
+            self.logger.info("返回普通开始菜单...")
+            self.is_showing_uwp_apps = False
+            self.refresh_program_list()
+            self.uwp_button.setText("UWP 应用")
+            self.uwp_button.clicked.disconnect()
+            self.uwp_button.clicked.connect(self.show_uwp_apps)
+            self.uwp_button.setEnabled(True)
+        else:
+            # 如果当前显示普通开始菜单，则显示UWP应用列表
+            self.logger.info("开始获取UWP应用列表...")
+            self.is_showing_uwp_apps = True
+            # 启动异步获取
+            self.uwp_app_fetcher.start()
+            # 暂时禁用UWP按钮，防止重复点击
+            self.uwp_button.setEnabled(False)
+            self.uwp_button.setText("正在加载UWP应用...")
 
     def on_uwp_apps_fetched(self, apps):
         """处理UWP应用列表获取完成"""
         self.logger.info(f"成功获取到 {len(apps)} 个UWP应用。")
         self.uwp_button.setEnabled(True)
-        self.uwp_button.setText("UWP 应用")
+        self.uwp_button.setText("关闭 UWP 应用菜单")
+        # 确保点击事件连接到show_uwp_apps，以便下次点击时可以返回普通菜单
+        self.uwp_button.clicked.disconnect()
+        self.uwp_button.clicked.connect(self.show_uwp_apps)
         
         # 确保滚动区域存在
         if not self.scroll_area:
@@ -357,8 +378,13 @@ class StartMenu(QWidget):
     def on_uwp_apps_error(self, error_message):
         """处理UWP应用列表获取错误"""
         self.logger.error(f"获取UWP应用失败: {error_message}")
+        self.is_showing_uwp_apps = False # 重置状态
         self.uwp_button.setEnabled(True)
-        self.uwp_button.setText("UWP 应用 (加载失败)")
+        self.uwp_button.setText("UWP 应用") # 恢复文本
+        self.uwp_button.clicked.disconnect() # 断开旧连接
+        self.uwp_button.clicked.connect(self.show_uwp_apps) # 重新连接到show_uwp_apps
+        # 刷新程序列表，确保显示的是普通开始菜单内容
+        self.refresh_program_list()
 
     def add_uwp_apps_to_program_list(self, apps):
         """将UWP应用添加到程序列表"""
@@ -484,7 +510,17 @@ class StartMenu(QWidget):
         """系统重启"""
         self.logger.info("系统重启")
         os.system("shutdown /r /t 0")
+
+    def system_lock(self):
+        """系统锁定"""
+        self.logger.info("系统锁定")
+        os.system("rundll32.exe user32.dll,LockWorkStation")
         
+    def system_sign_out(self):
+        """系统注销"""
+        self.logger.info("系统注销")
+        os.system("shutdown /l")
+
     def show_user_menu(self, pos):
         """显示用户上下文菜单"""
         user_menu = QMenu(self)
@@ -497,6 +533,7 @@ class StartMenu(QWidget):
         # 连接动作信号
         lock_action.triggered.connect(self.system_lock)
         sign_out_action.triggered.connect(self.system_sign_out)
+
         
         # 添加动作到菜单
         user_menu.addAction(lock_action)
@@ -600,6 +637,12 @@ class StartMenu(QWidget):
         """刷新程序列表"""
         # 清除旧的程序列表
         self.clear_program_buttons()
+
+        # 根据当前路径判断是否显示返回按钮
+        if self.current_path == self.default_start_menu_path:
+            self.back_button.setVisible(False)
+        else:
+            self.back_button.setVisible(True)
 
         # 确保 program_layout 已初始化
         if not self.program_layout:
