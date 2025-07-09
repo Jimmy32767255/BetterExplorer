@@ -2,3 +2,5 @@ __pycache__
 .pyc
 logs
 Config/Config.json
+dist
+build

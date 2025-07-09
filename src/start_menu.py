@@ -403,7 +403,7 @@ class StartMenu(QWidget):
         for app in apps:
             # 为每个UWP应用创建一个按钮
             button = QToolButton()
-            button.setText(app['name'] + ' (UWP)')
+            button.setText(app['name'])
             button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
             button.setFixedSize(100, 80)
             # TODO: 为UWP应用设置图标，可能需要额外的逻辑来获取UWP应用的图标

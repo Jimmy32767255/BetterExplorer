@@ -11,12 +11,9 @@ import os
 import sys
 
 # 配置日志
-log_dir = os.path.join(os.getcwd(), 'logs')
+log_dir = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'logs')
 os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, 'log.txt')
-
-# 移除默认的handler
-logger.remove()
 
 # 添加文件handler
 logger.add(
@@ -29,12 +26,12 @@ logger.add(
 )
 
 # 添加控制台handler
-logger.add(
-    sys.stdout,
-    colorize=True,      # 启用彩色输出
-    format="<green>{time}</green> <level>{level}</level> <cyan>{message}</cyan>",
-    level="INFO"        # 设置日志级别
-)
+if sys.stdout is not None:
+    logger.add(
+        sys.stdout,
+        colorize=True,      # 启用彩色输出
+        level="INFO"        # 设置日志级别
+    )
 
 # 定义一个全局可用的logger实例
 def get_logger():

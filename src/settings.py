@@ -8,6 +8,7 @@ BetterExplorer - 设置模块
 
 import os
 import json
+import sys
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QCheckBox, QTabWidget,
                              QGroupBox, QMessageBox, QApplication, QLineEdit)
@@ -31,7 +32,12 @@ class Settings(QWidget):
         self.logger.info("设置模块初始化")
         
         # 设置文件路径
-        self.settings_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Config", "Config.json")
+        if getattr(sys, 'frozen', False):
+            # 如果是打包后的exe文件
+            self.settings_file = os.path.join(sys._MEIPASS, "Config", "Config.json")
+        else:
+            # 如果是未打包的.py文件
+            self.settings_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Config", "Config.json")
         
         # 加载设置
         self.load_settings()
@@ -222,6 +228,8 @@ class Settings(QWidget):
     def load_settings(self):
         """加载设置"""
         try:
+            # 确保配置文件目录存在
+            os.makedirs(os.path.dirname(self.settings_file), exist_ok=True)
             if os.path.exists(self.settings_file):
                 with open(self.settings_file, 'r', encoding='utf-8') as f:
                     self.settings = json.load(f)
@@ -267,6 +275,8 @@ class Settings(QWidget):
             self.settings["disable_system_explorer"] = self.disable_system_explorer_checkbox.isChecked()
             self.settings["desktop_path"] = self.desktop_path_edit.text()
             
+            # 确保配置文件目录存在
+            os.makedirs(os.path.dirname(self.settings_file), exist_ok=True)
             # 保存到文件
             with open(self.settings_file, 'w', encoding='utf-8') as f:
                 json.dump(self.settings, f, ensure_ascii=False, indent=4)
