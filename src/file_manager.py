@@ -15,7 +15,9 @@ from PyQt5.QtWidgets import (QMainWindow, QListView, QFileSystemModel,
                              QAction, QMenu, QInputDialog, QMessageBox,
                              QComboBox)
 from PyQt5.QtCore import Qt, QDir
-from log import Logger
+from log import get_logger
+
+logger = get_logger()
 
 
 class FileManager(QMainWindow):
@@ -26,7 +28,7 @@ class FileManager(QMainWindow):
         self.current_path = os.path.expanduser("~")
         
         # 初始化日志记录器
-        self.logger = Logger()
+        self.logger = logger
         self.logger.info("文件管理器初始化")
         
         # 检查是否需要关闭系统资源管理器

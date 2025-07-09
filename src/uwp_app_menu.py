@@ -1,5 +1,9 @@
 import subprocess
+import subprocess
 import json
+from log import get_logger
+
+logger = get_logger()
 
 def get_uwp_apps():
     """
@@ -14,7 +18,7 @@ def get_uwp_apps():
         apps = json.loads('\n'.join(filtered_output))
         return [{'name': app['Name'], 'appid': app['AppID']} for app in apps]
     except Exception as e:
-        print(f"获取UWP应用失败: {str(e)}\n原始输出:\n{result.stdout}")
+        logger.error(f"获取UWP应用失败: {str(e)}\n原始输出:\n{result.stdout}")
         return []
 
 def launch_uwp_app(app_id):
@@ -23,5 +27,5 @@ def launch_uwp_app(app_id):
         subprocess.run(f'explorer shell:appsFolder\{app_id}', shell=True)
         return True
     except Exception as e:
-        print(f"启动应用失败: {str(e)}")
+        logger.error(f"启动应用失败: {str(e)}")
         return False

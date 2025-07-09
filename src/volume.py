@@ -10,6 +10,9 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QToolButton
 import os
+from log import get_logger
+
+logger = get_logger()
 
 class VolumeControl(QWidget):
     """音量控制控件"""
@@ -50,13 +53,13 @@ class VolumeControl(QWidget):
     def set_volume(self, value):
         """设置系统音量"""
         # TODO: 实现跨平台的音量设置逻辑
-        print(f"设置音量为: {value}")
+        logger.info(f"设置音量为: {value}")
         pass
 
     def toggle_mute(self):
         """切换静音状态"""
         # TODO: 实现跨平台的静音切换逻辑
-        print("切换静音")
+        logger.info("切换静音")
         pass
 
     def is_muted(self):

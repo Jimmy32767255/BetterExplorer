@@ -11,7 +11,9 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLineEdit, QListWidget,
 from PyQt5.QtCore import Qt, pyqtSignal # Added pyqtSignal
 from PyQt5.QtGui import QIcon
 import os
-from log import Logger
+from log import get_logger
+
+logger = get_logger()
 from settings import Settings # 导入 Settings
 
 class SearchWindow(QWidget):
@@ -20,7 +22,7 @@ class SearchWindow(QWidget):
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.logger = Logger()
+        self.logger = logger
         self.init_ui()
 
     def init_ui(self):

@@ -12,6 +12,10 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QToolButton
 import os
 
+from log import get_logger
+
+logger = get_logger()
+
 class NetworkStatus(QToolButton):
     """网络状态控件"""
     def __init__(self, parent=None):
@@ -76,5 +80,5 @@ class NetworkStatus(QToolButton):
     def show_network_details(self):
         """显示网络详情（可选）"""
         # 可以弹出一个窗口或菜单显示更详细的网络信息
-        print("显示网络详情")
+        logger.info("显示网络详情")
         pass

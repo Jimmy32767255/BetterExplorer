@@ -12,7 +12,9 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
                              QPushButton, QCheckBox, QTabWidget,
                              QGroupBox, QMessageBox, QApplication, QLineEdit)
 from PyQt5.QtCore import Qt
-from log import Logger
+from log import get_logger
+
+logger = get_logger()
 
 
 
@@ -25,7 +27,7 @@ class Settings(QWidget):
         self.resize(600, 400)
         
         # 初始化日志记录器
-        self.logger = Logger()
+        self.logger = logger
         self.logger.info("设置模块初始化")
         
         # 设置文件路径

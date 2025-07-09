@@ -7,6 +7,9 @@ BetterExplorer - 运行窗口模块
 """
 
 from PyQt5.QtWidgets import QApplication, QInputDialog
+from log import get_logger
+
+logger = get_logger()
 
 class RunDialog:
     """运行对话框类，提供命令行输入功能"""
@@ -19,7 +22,7 @@ class RunDialog:
         text, ok = QInputDialog.getText(None, '运行', '输入命令或路径:')
         if ok and text:
             # 这里可以添加执行命令的逻辑
-            print(f"执行命令: {text}")
+            logger.info(f"执行命令: {text}")
             return text
         return None
 

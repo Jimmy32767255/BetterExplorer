@@ -17,7 +17,9 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel,
                              QListWidget, QListWidgetItem, QApplication)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
-from log import Logger
+from log import get_logger
+
+logger = get_logger()
 
 
 class AltTabSwitcher(QWidget):
@@ -32,7 +34,7 @@ class AltTabSwitcher(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground)
         
         # 初始化日志记录器
-        self.logger = Logger()
+        self.logger = logger
         self.logger.info("Alt+Tab切换器初始化")
         
         # 初始化UI

@@ -16,7 +16,9 @@ from PyQt5.QtGui import QIcon, QPixmap, QPainter, QCursor
 from PyQt5.QtSvg import QSvgRenderer
 from icons import file_manager_icon, settings_icon, power_icon
 from PyQt5.QtWidgets import QFileIconProvider
-from log import Logger
+from log import get_logger
+
+logger = get_logger()
 from uwp_app_menu import get_uwp_apps, launch_uwp_app
 from file_manager import FileManager
 from settings import Settings
@@ -32,7 +34,7 @@ class StartMenu(QWidget):
         self.taskbar = parent  # 保存任务栏引用
         
         # 初始化日志记录器
-        self.logger = Logger()
+        self.logger = logger
         self.logger.info("开始菜单初始化")
         
         # 设置窗口属性

@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QLabel, QPushButton,
 from PyQt5.QtCore import (Qt, QTimer, QRect, QPropertyAnimation,
                           QPoint, QEvent, QEasingCurve)
 from PyQt5.QtGui import QIcon, QCursor
-from log import Logger
+from log import get_logger
 from settings import Settings
 from volume import VolumeControl # 导入音量控件
 from network import NetworkStatus # 导入网络状态控件
@@ -37,7 +37,7 @@ class TaskBar(QWidget):
         
         # 初始化日志记录器
         
-        self.logger = Logger()
+        self.logger = get_logger()
         self.logger.info("任务栏初始化")
         
         # 创建鼠标位置检测定时器
@@ -354,7 +354,7 @@ class TaskBar(QWidget):
         """添加系统托盘图标"""
         # 检查图标文件是否存在
         if not os.path.exists(icon_path):
-            print(f"警告：系统托盘图标文件不存在: {icon_path}")
+            self.logger.warning(f"警告：系统托盘图标文件不存在: {icon_path}")
             return None
             
         # 创建系统托盘图标

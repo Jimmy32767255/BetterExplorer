@@ -14,7 +14,9 @@ from PyQt5.QtWidgets import (QMainWindow, QVBoxLayout,
 from PyQt5.QtCore import Qt, QSize, QRect, QDir
 from PyQt5.QtGui import QCursor
 from PyQt5.QtWidgets import QFileSystemModel
-from log import Logger
+from log import get_logger
+
+logger = get_logger()
 from settings import Settings
 from file_manager import FileManager
 
@@ -37,7 +39,7 @@ class Desktop(QMainWindow):
         self.clipboard_action = None
         
         # 初始化日志记录器
-        self.logger = Logger()
+        self.logger = logger
         self.logger.info("桌面管理器初始化")
         
         # 初始化桌面
