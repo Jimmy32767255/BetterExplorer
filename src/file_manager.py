@@ -123,7 +123,7 @@ class FileManager(QMainWindow):
         if os.path.isdir(path):
             self.navigate_to(path)
         else:
-            # 打开文件（这里可以根据文件类型选择不同的打开方式）
+            # 打开文件(这里可以根据文件类型选择不同的打开方式)
             os.startfile(path)
     
     def navigate_to(self, path):

@@ -58,7 +58,7 @@ class NetworkStatus(QToolButton):
         self.update_network_status()
 
     def update_network_status(self):
-        """更新网络状态（图标、提示等）"""
+        """更新网络状态(图标、提示等)"""
         # is_connected = self.check_connection()
         # connection_type = self.get_connection_type()
         # 更新图标和 ToolTip
@@ -73,12 +73,12 @@ class NetworkStatus(QToolButton):
         return True # 示例值
 
     def get_connection_type(self):
-        """获取网络连接类型（如 Wi-Fi, Ethernet）"""
+        """获取网络连接类型(如 Wi-Fi, Ethernet)"""
         # TODO: 实现获取网络连接类型的逻辑
         return "Wi-Fi" # 示例值
 
     def show_network_details(self):
-        """显示网络详情（可选）"""
+        """显示网络详情(可选)"""
         # 可以弹出一个窗口或菜单显示更详细的网络信息
         logger.info("显示网络详情")
         pass

@@ -227,14 +227,14 @@ class TaskBar(QWidget):
         cursor_pos = QCursor.pos()
         for i, taskbar_info in enumerate(self.taskbar_widgets):
             screen = taskbar_info['screen']
-            # 检查鼠标是否在屏幕底部区域（最后5个像素）
+            # 检查鼠标是否在屏幕底部区域(最后5个像素)
             if (screen['x'] <= cursor_pos.x() <= screen['x'] + screen['width'] and
                 screen['y'] + screen['height'] - 5 <= cursor_pos.y() <= screen['y'] + screen['height']):
                 self.show_taskbar(taskbar_info['widget'], self.show_animations[i])
                 break
     
     def init_taskbar_positions(self):
-        """初始化任务栏位置（用于自动隐藏功能）"""
+        """初始化任务栏位置(用于自动隐藏功能)"""
         if not self.auto_hide_taskbar:
             return
             
@@ -242,7 +242,7 @@ class TaskBar(QWidget):
             taskbar = taskbar_info['widget']
             screen = taskbar_info['screen']
             
-            # 设置隐藏位置（只露出1像素）
+            # 设置隐藏位置(只露出1像素)
             hidden_y = screen['y'] + screen['height'] - 1
             # 设置显示位置
             shown_y = screen['y'] + screen['height'] - self.taskbar_height
@@ -300,7 +300,7 @@ class TaskBar(QWidget):
         app_button.setFixedHeight(30)
         app_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         
-        # 设置图标（如果有）
+        # 设置图标(如果有)
         if icon_path and os.path.exists(icon_path):
             app_button.setIcon(QIcon(icon_path))
             self.logger.debug(f"设置应用程序图标: {icon_path}")

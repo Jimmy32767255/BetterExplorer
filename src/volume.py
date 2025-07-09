@@ -38,7 +38,7 @@ class VolumeControl(QWidget):
         self.update_volume_status()
 
     def update_volume_status(self):
-        """更新音量状态（图标、滑块值等）"""
+        """更新音量状态(图标、滑块值等)"""
         # current_volume = self.get_current_volume()
         # is_muted = self.is_muted()
         # 更新图标和滑块状态

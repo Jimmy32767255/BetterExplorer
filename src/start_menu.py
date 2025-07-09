@@ -169,7 +169,7 @@ class StartMenu(QWidget):
         col = 0
         max_cols = 3
         
-        # 检查是否需要添加返回按钮（虽然初始化时通常不需要，但保持逻辑一致性）
+        # 检查是否需要添加返回按钮(虽然初始化时通常不需要，但保持逻辑一致性)
         if self.current_path != self.default_start_menu_path:
             back_button = QPushButton("返回上一级")
             back_button.setStyleSheet(
@@ -517,7 +517,7 @@ class StartMenu(QWidget):
             # 获取主屏幕
             primary_screen = self.display_manager.get_primary_screen()
             
-            # 计算菜单位置（在开始按钮正上方）
+            # 计算菜单位置(在开始按钮正上方)
             x = button_pos.x()
             y = primary_screen['y'] + primary_screen['height'] - self.height() - self.taskbar.taskbar_height
             

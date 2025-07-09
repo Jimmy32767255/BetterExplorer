@@ -31,7 +31,7 @@ class Settings(QWidget):
         self.logger.info("设置模块初始化")
         
         # 设置文件路径
-        self.settings_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "settings.json")
+        self.settings_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Config", "Config.json")
         
         # 加载设置
         self.load_settings()
@@ -96,11 +96,11 @@ class Settings(QWidget):
         )
         taskbar_layout.addWidget(self.auto_hide_taskbar_checkbox)
         
-        # 添加更多任务栏设置选项（可以根据需要扩展）
+        # 添加更多任务栏设置选项(可以根据需要扩展)
         
         ui_layout.addWidget(taskbar_group)
         
-        # 添加更多设置组（可以根据需要扩展）
+        # 添加更多设置组(可以根据需要扩展)
         
         # 添加弹性空间
         ui_layout.addStretch(1)
@@ -229,15 +229,18 @@ class Settings(QWidget):
             else:
                 # 默认设置
                 self.settings = {
-                    "left_buttons_center": False,
-                    "disable_system_explorer": False
+                    "center_start_button": False,
+                    "auto_hide_taskbar": False,
+                    "disable_system_explorer": False,
+                    "desktop_path": ""
                 }
                 self.logger.info("使用默认设置")
         except Exception as e:
             self.logger.error(f"加载设置时出错: {str(e)}")
             # 出错时使用默认设置
             self.settings = {
-                "left_buttons_center": False,
+                "center_start_button": False,
+                "auto_hide_taskbar": False,
                 "disable_system_explorer": False,
                 "desktop_path": ""
             }
@@ -281,7 +284,7 @@ class Settings(QWidget):
     @staticmethod
     def get_setting(key, default=None):
         """获取设置值"""
-        settings_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "settings.json")
+        settings_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Config", "Config.json")
         try:
             if os.path.exists(settings_file):
                 with open(settings_file, 'r', encoding='utf-8') as f:
