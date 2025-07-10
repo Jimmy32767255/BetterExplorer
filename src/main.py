@@ -20,7 +20,6 @@ from hotkey import HotkeyManager
 from log import get_logger
 
 from settings import Settings
-from search import SearchWindow
 
 
 

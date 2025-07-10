@@ -7,7 +7,6 @@ BetterExplorer - 开始菜单模块
 """
 
 import os
-import sys
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
                              QScrollArea, QFrame, QGridLayout,
                              QToolButton, QMenu, QAction, QApplication, QStackedLayout)
@@ -436,13 +435,11 @@ class StartMenu(QWidget):
         self.logger.info("显示开始菜单并让搜索框获得焦点")
         # 如果开始菜单没有显示，则显示它
         if not self.isVisible():
-            # 获取任务栏的位置信息，以便将开始菜单显示在正确的位置
-            # 这里需要根据实际任务栏的位置来调整，例如，如果任务栏在底部
             # 则开始菜单应该从屏幕底部向上弹出
             screen_rect = QApplication.desktop().screenGeometry()
             taskbar_height = self.taskbar.height() if self.taskbar else 0
             # 计算开始菜单的显示位置
-            x = 0 # 假设从屏幕左侧开始
+            x = 0
             y = screen_rect.height() - taskbar_height - self.height() # 菜单在任务栏上方
             self.move(x, y)
             self.show()

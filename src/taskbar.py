@@ -7,7 +7,6 @@ BetterExplorer - 任务栏模块
 """
 
 import os
-import time
 from datetime import datetime
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QLabel, QPushButton, 
                              QSystemTrayIcon, QToolButton,
@@ -404,8 +403,6 @@ class TaskBar(QWidget):
             
             # 发出信号，将在main.py中连接到start_menu.toggle_visibility
             button_pos = button.mapToGlobal(button.rect().topLeft())
-            # 这个方法会在main.py中被连接到StartMenu的toggle_visibility方法
-            # 实际的菜单显示逻辑在StartMenu类中实现
 
     def handle_network_click(self):
         """处理网络按钮点击事件"""
