@@ -7,7 +7,6 @@ BetterExplorer - Alt+Tab切换模块
 """
 
 
-import sys
 import win32con
 import win32gui
 import ctypes

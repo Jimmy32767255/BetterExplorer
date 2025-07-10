@@ -65,7 +65,6 @@ class DisplayManager:
         """处理屏幕尺寸变化事件"""
         self.logger.info(f"屏幕{screen_index}尺寸变化")
         self.update_screen_info()
-        # 这里可以添加屏幕尺寸变化的处理逻辑
     
     def get_screens(self):
         """获取所有屏幕信息"""
@@ -98,7 +97,6 @@ class DisplayManager:
     def on_screen_count_changed(self, count):
         """处理屏幕数量变化事件"""
         self.update_screen_info()
-        # 这里可以添加屏幕数量变化的处理逻辑
     
     def on_screen_resized(self, screen_index):
         """处理屏幕尺寸变化事件"""

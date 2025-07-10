@@ -276,7 +276,6 @@ class FileManager(QMainWindow):
     
     def stop_system_explorer(self):
         """停止系统资源管理器进程"""
-        from settings import Settings
         try:
             for proc in psutil.process_iter(['pid', 'name']):
                 if proc.info['name'].lower() == 'explorer.exe':
@@ -287,7 +286,6 @@ class FileManager(QMainWindow):
     
     def start_system_explorer(self):
         """启动系统资源管理器进程"""
-        from settings import Settings
         try:
             subprocess.Popen('explorer.exe')
             self.logger.info("系统资源管理器已启动")
