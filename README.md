@@ -8,7 +8,7 @@
 
 - **基础桌面**：提供桌面图标显示和右键菜单功能
 - **文件管理**：支持文件浏览、复制、移动、删除等基本文件操作
-- **Alt+Tab 切换**：实现类似 Windows 的 Alt+Tab 窗口切换功能
+- **Alt+Tab切换**：实现类似 Windows 的 Alt+Tab 窗口切换功能
 - **多显示器支持**：自动识别并支持多个显示器
 
 ## 系统要求
@@ -49,8 +49,3 @@ python main.py
 ## 许可证
 
 [MIT](/LICENSE)
-
-## 致敬开发者
-
-[Jimmy32767255](https://github.com/Jimmy32767255)
-[希望Windows的hh](https://github.com/xwWindowsdhh)
