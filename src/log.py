@@ -15,6 +15,9 @@ log_dir = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'logs')
 os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, 'log.txt')
 
+# 清除现有的所有handler，防止重复添加
+logger.remove()
+
 # 添加文件handler
 logger.add(
     log_file,
